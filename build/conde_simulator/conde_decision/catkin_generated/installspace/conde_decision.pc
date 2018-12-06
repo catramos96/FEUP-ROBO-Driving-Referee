@@ -1,8 +1,0 @@
-prefix=/home/catarina/Documents/ROBO-DRIVING-REFEREE/install
-
-Name: conde_decision
-Description: Description of conde_decision
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/catarina/Documents/ROBO-DRIVING-REFEREE/install/lib 
-Requires: 

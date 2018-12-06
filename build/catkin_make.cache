@@ -1,2 +1,0 @@
-conde_simulator/conde_control:conde_simulator/conde_decision:conde_simulator/conde_key_teleop:conde_simulator/conde_signalling_panel:conde_simulator/conde_tracking:conde_simulator/conde_world:conde_simulator/gazebo_signalling_panel_control:conde_simulator/gazebo_traffic_sign
--DCATKIN_DEVEL_PREFIX=/home/catarina/Documents/ROBO-DRIVING-REFEREE/devel -DCMAKE_INSTALL_PREFIX=/home/catarina/Documents/ROBO-DRIVING-REFEREE/install -G Unix Makefiles

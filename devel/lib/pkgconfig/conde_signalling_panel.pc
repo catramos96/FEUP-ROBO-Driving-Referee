@@ -1,8 +1,0 @@
-prefix=/home/catarina/Documents/ROBO-DRIVING-REFEREE/devel
-
-Name: conde_signalling_panel
-Description: Description of conde_signalling_panel
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/catarina/Documents/ROBO-DRIVING-REFEREE/devel/lib 
-Requires: 

@@ -1,8 +1,0 @@
-prefix=/home/catarina/Documents/ROBO-DRIVING-REFEREE/install
-
-Name: gazebo_traffic_sign
-Description: Description of gazebo_traffic_sign
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/catarina/Documents/ROBO-DRIVING-REFEREE/install/lib 
-Requires: 
