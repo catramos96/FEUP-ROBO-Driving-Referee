@@ -146,14 +146,14 @@
       </link>
     </model>
     
-    <model name='teste'>
+    <model name='world_sensor'>
       <static>1</static>
-      <link name='teste_2_3'>
-          <pose>5 0 0 0 0 0</pose>
-          <collision name='teste_2_3'>
+      <link name='bumper_sensor'>
+          <pose>2.58 -2.5 0 0 0 0</pose>
+          <collision name='bumper_sensor'>
             <geometry>
               <box>
-                <size>.4 .2 .1</size>
+                <size>.4 .2 0.1</size>
               </box>
             </geometry>
           </collision>
@@ -161,7 +161,7 @@
           <visual name='visual'>
             <geometry>
               <box>
-                <size>.4 .2 .1</size>
+                <size>0.1 5.60 0.1</size>
               </box>
             </geometry>
             <material>
@@ -174,9 +174,9 @@
             
           </visual>
                   <sensor name='collision' type='contact'>
-          <plugin name="my_plugin" filename="libcontact.so"/>
+          <plugin name="contactplugin" filename="libcontact.so"/>
           <contact>
-            <collision>teste_2_3</collision>
+            <collision>bumper_sensor</collision>
           </contact>
         </sensor>
 
