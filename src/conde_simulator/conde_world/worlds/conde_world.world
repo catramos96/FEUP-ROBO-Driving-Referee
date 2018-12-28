@@ -60,13 +60,14 @@
                   </contact>
                </surface>
                <max_contacts>10</max_contacts>
-            </collision><visual name="visual">
-                    <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://meshes/track_visualization.stl</uri>
-          </mesh>
-        </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_visualization.stl</uri>
+                  </mesh>
+               </geometry>
             </visual>
             <velocity_decay>
                <linear>0</linear>
@@ -133,20 +134,20 @@
          <link name="bumper_sensor">
             <pose>2.475 0 0 0 0 0</pose>
             <collision name="bumper_sensor">
-                    <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://meshes/track_bounds.stl</uri>
-          </mesh>
-        </geometry>
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_bounds.stl</uri>
+                  </mesh>
+               </geometry>
             </collision>
             <visual name="visual">
-                    <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://meshes/track_bounds.stl</uri>
-          </mesh>
-        </geometry>
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_bounds.stl</uri>
+                  </mesh>
+               </geometry>
                <material>
                   <script>
                      <uri>model://materials/scripts</uri>
@@ -162,25 +163,26 @@
                </contact>
             </sensor>
          </link>
-      </model><model name="semaphore_sensor">
+      </model>
+      <model name="semaphore_sensor">
          <static>1</static>
          <link name="bumper_sensor">
             <pose>2.475 0 0 0 0 0</pose>
             <collision name="bumper_sensor">
-                    <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://meshes/track_semaphore.stl</uri>
-          </mesh>
-        </geometry>
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_semaphore.stl</uri>
+                  </mesh>
+               </geometry>
             </collision>
             <visual name="visual">
-                    <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://meshes/track_semaphore.stl</uri>
-          </mesh>
-        </geometry>
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_semaphore.stl</uri>
+                  </mesh>
+               </geometry>
                <material>
                   <script>
                      <uri>model://materials/scripts</uri>
@@ -332,4 +334,3 @@
       </gui>
    </world>
 </sdf>
-
