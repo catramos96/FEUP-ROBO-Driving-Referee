@@ -133,11 +133,12 @@
          <link name="bumper_sensor">
             <pose>2.475 0 0 0 0 0</pose>
             <collision name="bumper_sensor">
-               <geometry>
-                  <box>
-                     <size>.4 .2 0.1</size>
-                  </box>
-               </geometry>
+                    <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/track_bounds.stl</uri>
+          </mesh>
+        </geometry>
             </collision>
             <visual name="visual">
                     <geometry>
