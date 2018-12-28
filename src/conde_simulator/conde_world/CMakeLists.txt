@@ -18,5 +18,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 # Build our plugin
-add_library(contact SHARED ContactPlugin.cc)
-target_link_libraries(contact ${GAZEBO_LIBRARIES})
+add_library(contact_1 SHARED ContactPlugin.cc)
+add_library(contact_2 SHARED ContactSemaphorePlugin.cc)
+target_link_libraries(contact_1 ${GAZEBO_LIBRARIES})
+target_link_libraries(contact_2 ${GAZEBO_LIBRARIES})
