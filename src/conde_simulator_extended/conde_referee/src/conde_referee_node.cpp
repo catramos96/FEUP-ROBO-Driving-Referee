@@ -58,6 +58,8 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Subscriber sub1 = n.subscribe("/conde_referee_robot_time", 1, saveRobotTimeCallback);
 
+  ROS_INFO("Listening on /conde_referee_robot_time");
+  
   ros::spin();
 
   return 0;

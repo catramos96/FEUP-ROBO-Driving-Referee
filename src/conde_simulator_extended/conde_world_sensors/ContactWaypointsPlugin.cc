@@ -1,20 +1,20 @@
-#include "ContactSemaphorePlugin.hh"
+#include "ContactWaypointsPlugin.hh"
 
 using namespace gazebo;
-GZ_REGISTER_SENSOR_PLUGIN(ContactSemaphorePlugin)
+GZ_REGISTER_SENSOR_PLUGIN(ContactWaypointsPlugin)
 
 /////////////////////////////////////////////////
-ContactSemaphorePlugin::ContactSemaphorePlugin() : SensorPlugin()
+ContactWaypointsPlugin::ContactWaypointsPlugin() : SensorPlugin()
 {
 }
 
 /////////////////////////////////////////////////
-ContactSemaphorePlugin::~ContactSemaphorePlugin()
+ContactWaypointsPlugin::~ContactWaypointsPlugin()
 {
 }
 
 /////////////////////////////////////////////////
-void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/)
+void ContactWaypointsPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/)
 {
     // Make sure the ROS node for Gazebo has already been initialized                                                                                    
   if (!ros::isInitialized())
@@ -31,13 +31,13 @@ void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*
   // Make sure the parent sensor is valid.
   if (!this->parentSensor)
   {
-    gzerr << "ContactSemaphorePlugin requires a ContactSensor.\n";
+    gzerr << "ContactWaypointsPlugin requires a ContactSensor.\n";
     return;
   }
 
   // Connect to the sensor update event.
   this->updateConnection = this->parentSensor->ConnectUpdated(
-      std::bind(&ContactSemaphorePlugin::OnUpdate, this));
+      std::bind(&ContactWaypointsPlugin::OnUpdate, this));
 
   // Make sure the parent sensor is active.
   this->parentSensor->SetActive(true);
@@ -52,50 +52,50 @@ void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*
   // Create a named topic, and subscribe to it.
   ros::SubscribeOptions so =
     ros::SubscribeOptions::create<std_msgs::String>("/conde_signalling_panel_state", 1,
-        boost::bind(&ContactSemaphorePlugin::SemaphoreStateCallback, this, _1),
+        boost::bind(&ContactWaypointsPlugin::SemaphoreStateCallback, this, _1),
         ros::VoidPtr(), &this->rosQueue);
   this->rosSub = this->rosNode->subscribe(so);
 
   // Spin up the queue helper thread.
-  this->rosQueueThread = std::thread(std::bind(&ContactSemaphorePlugin::QueueThread, this));
+  this->rosQueueThread = std::thread(std::bind(&ContactWaypointsPlugin::QueueThread, this));
+
+  this->pub1 = this->rosNode->advertise<std_msgs::String>("/conde_referee_robot_time", 1000);
 }
 
 /////////////////////////////////////////////////
-void ContactSemaphorePlugin::OnUpdate()
+void ContactWaypointsPlugin::OnUpdate()
 {
   // Get all the contacts.
   msgs::Contacts contacts;
   contacts = this->parentSensor->Contacts();
+  
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
-    /*std::cout << "Collision between[" << contacts.contact(i).collision1()
-              << "] and [" << contacts.contact(i).collision2() << "]\n";*/
+    std::cout << "Collision between[" << contacts.contact(i).collision1()
+              << "] and [" << contacts.contact(i).collision2() << "]\n";
 
     for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
-      /*std::cout << j << "  Position:"
-                << contacts.contact(i).position(j).x() << " "
-                << contacts.contact(i).position(j).y() << " "
-                << contacts.contact(i).position(j).z() << "\n";
-      std::cout << "   Normal:"
-                << contacts.contact(i).normal(j).x() << " "
-                << contacts.contact(i).normal(j).y() << " "
-                << contacts.contact(i).normal(j).z() << "\n";
-      std::cout << "   Depth:" << contacts.contact(i).depth(j) << "\n" << "OLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";*/
+  /*std_msgs::String msg;
+  std::stringstream ss;
+  ss << "hello_world ";
+  msg.data = ss.str();
+  this->pub1.publish(msg);*/
     }
   }
+  
 }
 
 /// \brief Handle an incoming message from ROS
 /// \param[in] _msg String that represents the semaphore's state
-void ContactSemaphorePlugin::SemaphoreStateCallback(const std_msgs::String::ConstPtr &_msg)
+void ContactWaypointsPlugin::SemaphoreStateCallback(const std_msgs::String::ConstPtr &_msg)
 {
   semaphore_state = _msg->data.c_str();
   ROS_INFO("Semaphore State: [%s]", _msg->data.c_str());
 }
 
 /// \brief ROS helper function that processes messages
-void ContactSemaphorePlugin::QueueThread()
+void ContactWaypointsPlugin::QueueThread()
 {
   static const double timeout = 0.01;
   while (this->rosNode->ok())

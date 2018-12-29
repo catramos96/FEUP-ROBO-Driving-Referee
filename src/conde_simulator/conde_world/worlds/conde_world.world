@@ -157,7 +157,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactplugin" filename="libcontact_teste.so" />
+               <plugin name="contactplugin" filename="libcontact_borders.so" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -192,7 +192,42 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactsemaphoreplugin" filename="libcontact_2.so" />
+               <plugin name="contactsemaphoreplugin" filename="libcontact_semaphore.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoints.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoints.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
