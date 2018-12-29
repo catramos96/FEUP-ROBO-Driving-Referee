@@ -56,7 +56,7 @@ void ContactPlugin::OnUpdate()
                 << contacts.contact(i).normal(j).x() << " "
                 << contacts.contact(i).normal(j).y() << " "
                 << contacts.contact(i).normal(j).z() << "\n";
-      std::cout << "   Depth:" << contacts.contact(i).depth(j) << "\n" << "OLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      std::cout << "   Depth:" << contacts.contact(i).depth(j) << "\n" << "OLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
     }
   }
 }
