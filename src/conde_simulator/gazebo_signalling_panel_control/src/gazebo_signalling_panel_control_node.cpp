@@ -35,6 +35,10 @@ int main(int argc, char** argv)
     image_transport::ImageTransport it2(nh1);
     image_transport::Publisher pub2 = it2.advertise("/monitor2/image2", 1);
 
+    // Publisher to give info to the world about the semaphore's state
+    ros::Publisher pub3 = nh1.advertise<std_msgs::String>("/conde_signalling_panel_state", 1);
+    std_msgs::String semaphore_state;
+
     std::string path = ros::package::getPath("gazebo_signalling_panel_control");
     printf("%s\n",path.c_str());
 
@@ -68,18 +72,32 @@ int main(int argc, char** argv)
         switch (opt) {
         case '0':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[0]).toImageMsg();
+            
+            //std::stringstream ss;
+            //ss << "hello world " << count;
+            //msg.data = ss.str();
+            semaphore_state.data = "LEFT";
+            pub3.publish(semaphore_state);
             break;
         case '1':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[1]).toImageMsg();
+            semaphore_state.data = "RIGHT";
+            pub3.publish(semaphore_state);
             break;
         case '2':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[2]).toImageMsg();
+            semaphore_state.data = "UP";
+            pub3.publish(semaphore_state);
             break;
         case '3':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[3]).toImageMsg();
+            semaphore_state.data = "STOP";
+            pub3.publish(semaphore_state);
             break;
         case '4':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[4]).toImageMsg();
+            semaphore_state.data = "PARK";
+            pub3.publish(semaphore_state);
             break;
         case 27:
             exit(0);
