@@ -12,50 +12,68 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/sensors/sensors.hh>
 
+#include "../utils.hh"
+
 namespace gazebo
 {
-  /// \brief An example plugin for a contact sensor.
-  class ContactSemaphorePlugin : public SensorPlugin
-  {
-    /// \brief Constructor.
-    public: ContactSemaphorePlugin();
+/// \brief An example plugin for a contact sensor.
+class ContactSemaphorePlugin : public SensorPlugin
+{
+  /// \brief Constructor.
+public:
+  ContactSemaphorePlugin();
 
-    /// \brief Destructor.
-    public: virtual ~ContactSemaphorePlugin();
+  /// \brief Destructor.
+public:
+  virtual ~ContactSemaphorePlugin();
 
-    /// \bried Semaphore State Variable
-    private: std::string semaphore_state;
+  /// \bried Semaphore State Variable
+private:
+  std::string semaphore_state;
 
-    /// \brief Load the sensor plugin.
-    /// \param[in] _sensor Pointer to the sensor that loaded this plugin.
-    /// \param[in] _sdf SDF element that describes the plugin.
-    public: virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf);
+  /// \brief Load the sensor plugin.
+  /// \param[in] _sensor Pointer to the sensor that loaded this plugin.
+  /// \param[in] _sdf SDF element that describes the plugin.
+public:
+  virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf);
 
-    /// \brief Callback that receives the contact sensor's update signal.
-    private: virtual void OnUpdate();
+  /// \brief Callback that receives the contact sensor's update signal.
+private:
+  virtual void OnUpdate();
 
-    /// \brief Pointer to the contact sensor
-    private: sensors::ContactSensorPtr parentSensor;
+  /// \brief Pointer to the contact sensor
+private:
+  sensors::ContactSensorPtr parentSensor;
 
-    /// \brief Connection that maintains a link between the contact sensor's
-    /// updated signal and the OnUpdate callback.
-    private: event::ConnectionPtr updateConnection;
+  /// \brief Connection that maintains a link between the contact sensor's
+  /// updated signal and the OnUpdate callback.
+private:
+  event::ConnectionPtr updateConnection;
 
-        /// \brief A node use for ROS transport
-    private: std::unique_ptr<ros::NodeHandle> rosNode;
+  /// \brief A node use for ROS transport
+private:
+  std::unique_ptr<ros::NodeHandle> rosNode;
 
-    /// \brief A ROS subscriber
-    private: ros::Subscriber rosSub;
+  /// \brief A ROS subscriber
+private:
+  ros::Subscriber rosSub;
 
-    /// \brief A ROS callbackqueue that helps process messages
-    private: ros::CallbackQueue rosQueue;
+  /// \brief A ROS callbackqueue that helps process messages
+private:
+  ros::CallbackQueue rosQueue;
 
-    /// \brief A thread the keeps running the rosQueue
-    private: std::thread rosQueueThread;
+  /// \brief A thread the keeps running the rosQueue
+private:
+  std::thread rosQueueThread;
 
-    public: void SemaphoreStateCallback(const std_msgs::String::ConstPtr& msg);
+public:
+  void SemaphoreStateCallback(const std_msgs::String::ConstPtr &msg);
 
-    private: void QueueThread();
-  };
-}
+private:
+  void QueueThread();
+
+public:
+  ros::Publisher pub;
+};
+} // namespace gazebo
 #endif

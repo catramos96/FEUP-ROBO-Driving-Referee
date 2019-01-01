@@ -6,6 +6,9 @@ GZ_REGISTER_SENSOR_PLUGIN(ContactSemaphorePlugin)
 /////////////////////////////////////////////////
 ContactSemaphorePlugin::ContactSemaphorePlugin() : SensorPlugin()
 {
+  // Publisher
+  ros::NodeHandle n;
+  this->pub = n.advertise<std_msgs::String>(SEMAPHORE_TOPIC, 1000);
 }
 
 /////////////////////////////////////////////////
@@ -16,17 +19,17 @@ ContactSemaphorePlugin::~ContactSemaphorePlugin()
 /////////////////////////////////////////////////
 void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/)
 {
-    // Make sure the ROS node for Gazebo has already been initialized                                                                                    
+  // Make sure the ROS node for Gazebo has already been initialized
   if (!ros::isInitialized())
   {
     ROS_FATAL_STREAM("A ROS node for Gazebo has not been initialized, unable to load plugin. "
-      << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package)");
+                     << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package)");
     return;
   }
 
   // Get the parent sensor.
   this->parentSensor =
-    std::dynamic_pointer_cast<sensors::ContactSensor>(_sensor);
+      std::dynamic_pointer_cast<sensors::ContactSensor>(_sensor);
 
   // Make sure the parent sensor is valid.
   if (!this->parentSensor)
@@ -42,7 +45,7 @@ void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*
   // Make sure the parent sensor is active.
   this->parentSensor->SetActive(true);
 
-    // Make sure the parent sensor is active.
+  // Make sure the parent sensor is active.
   this->parentSensor->SetActive(true);
 
   // Create our ROS node. This acts in a similar manner to
@@ -51,9 +54,9 @@ void ContactSemaphorePlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*
 
   // Create a named topic, and subscribe to it.
   ros::SubscribeOptions so =
-    ros::SubscribeOptions::create<std_msgs::String>("/conde_signalling_panel_state", 1,
-        boost::bind(&ContactSemaphorePlugin::SemaphoreStateCallback, this, _1),
-        ros::VoidPtr(), &this->rosQueue);
+      ros::SubscribeOptions::create<std_msgs::String>("/conde_signalling_panel_state", 1,
+                                                      boost::bind(&ContactSemaphorePlugin::SemaphoreStateCallback, this, _1),
+                                                      ros::VoidPtr(), &this->rosQueue);
   this->rosSub = this->rosNode->subscribe(so);
 
   // Spin up the queue helper thread.
@@ -68,6 +71,11 @@ void ContactSemaphorePlugin::OnUpdate()
   contacts = this->parentSensor->Contacts();
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
+
+    std_msgs::String str;
+    str.data = "Semaphore: " + contacts.contact(i).collision1() + " " + contacts.contact(i).collision2();
+    this->pub.publish(str);
+
     /*std::cout << "Collision between[" << contacts.contact(i).collision1()
               << "] and [" << contacts.contact(i).collision2() << "]\n";*/
 

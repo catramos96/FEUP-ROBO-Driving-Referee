@@ -6,6 +6,9 @@ GZ_REGISTER_SENSOR_PLUGIN(ContactPlugin)
 /////////////////////////////////////////////////
 ContactPlugin::ContactPlugin() : SensorPlugin()
 {
+  // Publisher
+  ros::NodeHandle n;
+  this->pub = n.advertise<std_msgs::String>(BOUNDARIES_TOPIC, 1000);
 }
 
 /////////////////////////////////////////////////
@@ -18,7 +21,7 @@ void ContactPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/)
 {
   // Get the parent sensor.
   this->parentSensor =
-    std::dynamic_pointer_cast<sensors::ContactSensor>(_sensor);
+      std::dynamic_pointer_cast<sensors::ContactSensor>(_sensor);
 
   // Make sure the parent sensor is valid.
   if (!this->parentSensor)
@@ -43,6 +46,11 @@ void ContactPlugin::OnUpdate()
   contacts = this->parentSensor->Contacts();
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
+
+    std_msgs::String str;
+    str.data = "Boundaries: " + contacts.contact(i).collision1() + " " + contacts.contact(i).collision2();
+    this->pub.publish(str);
+
     /*std::cout << "Collision between[" << contacts.contact(i).collision1()
               << "] and [" << contacts.contact(i).collision2() << "]\n";*/
 
