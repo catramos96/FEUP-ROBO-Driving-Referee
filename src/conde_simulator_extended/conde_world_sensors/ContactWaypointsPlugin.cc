@@ -76,6 +76,9 @@ void ContactWaypointsPlugin::OnUpdate()
     str.data = "Waypoints: " + contacts.contact(i).collision1() + " " + contacts.contact(i).collision2() + "\n";
     this->pub.publish(str);
 
+        std::cout << "Collision between[" << contacts.contact(i).collision1()
+              << "] and [" << contacts.contact(i).collision2() << "]\n";
+
     /*
     TODO: Create messages with id/name of the objects that collided and the time.
     */

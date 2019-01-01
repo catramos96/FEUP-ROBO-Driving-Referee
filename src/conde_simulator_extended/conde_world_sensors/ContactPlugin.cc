@@ -51,8 +51,8 @@ void ContactPlugin::OnUpdate()
     str.data = "Boundaries: " + contacts.contact(i).collision1() + " " + contacts.contact(i).collision2();
     this->pub.publish(str);
 
-    /*std::cout << "Collision between[" << contacts.contact(i).collision1()
-              << "] and [" << contacts.contact(i).collision2() << "]\n";*/
+    std::cout << "Collision between[" << contacts.contact(i).collision1()
+              << "] and [" << contacts.contact(i).collision2() << "]\n";
 
     for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
     {

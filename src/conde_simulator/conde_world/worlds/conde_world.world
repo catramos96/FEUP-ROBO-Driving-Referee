@@ -199,7 +199,7 @@
             </sensor>
          </link>
       </model>
-      <model name="waypoints_sensor">
+      <model name="waypoints_sensor_1">
          <static>1</static>
          <link name="bumper_sensor">
             <pose>2.475 0 0 0 0 0</pose>
@@ -207,7 +207,7 @@
                <geometry>
                   <mesh>
                      <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoints.stl</uri>
+                     <uri>model://meshes/track_waypoint_1.stl</uri>
                   </mesh>
                </geometry>
             </collision>
@@ -215,7 +215,252 @@
                <geometry>
                   <mesh>
                      <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoints.stl</uri>
+                     <uri>model://meshes/track_waypoint_1.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_2">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_2.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_2.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_3">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_3.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_3.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_4">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_4.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_4.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_5">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_5.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_5.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_6">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_6.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_6.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_7">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_7.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_7.stl</uri>
+                  </mesh>
+               </geometry>
+               <material>
+                  <script>
+                     <uri>model://materials/scripts</uri>
+                     <uri>model://materials/textures</uri>
+                     <name>Yellow/Image</name>
+                  </script>
+               </material>
+            </visual>
+            <sensor name="collision" type="contact">
+               <plugin name="contactsemaphoreplugin" filename="libcontact_waypoints.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="waypoints_sensor_8">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_8.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <visual name="visual">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_waypoint_8.stl</uri>
                   </mesh>
                </geometry>
                <material>

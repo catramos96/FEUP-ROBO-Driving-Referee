@@ -108,7 +108,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub4 = n4.subscribe(SEMAPHORE_TOPIC, 1, GeneralizedCallback);  //Change
   ros::Subscriber sub5 = n5.subscribe(SEMAPHORE_STATE_TOPIC, 1, SemaphoreCallback);
 
-  // ROS_INFO("Listening on /conde_referee_robot_time");
+  ROS_INFO("Listening on /conde_referee_robot_time");
 
   ros::spin();
 
