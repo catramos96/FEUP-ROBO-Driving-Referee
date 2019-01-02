@@ -61,7 +61,7 @@ void GeneralizedCallback(const std_msgs::String::ConstPtr &msg)
   cout << msg->data.c_str() << endl;
 }
 
-void SemaphoreCallback(const std_msgs::String::ConstPtr &msg)
+void SemaphoreStateCallback(const std_msgs::String::ConstPtr &msg)
 {
   string m = msg->data.c_str();
 
@@ -86,7 +86,7 @@ void SemaphoreCallback(const std_msgs::String::ConstPtr &msg)
     semaphoreState = PARK;
   }
 
-  cout << m << " " << semaphoreState << "\n";
+  cout << "SEMAPHORE: " << semaphoreState << endl;
 }
 
 void WaypointsCallback(const std_msgs::String::ConstPtr &msg)
@@ -126,28 +126,8 @@ void WaypointsCallback(const std_msgs::String::ConstPtr &msg)
       robots.push_back(r);
     }
 
-    //check if waypoint will be added to route
-    bool add_w = false;
-
-    if (r->route.size() == 0)
-      add_w = true;
-    else if (r->getLastWaypoint() != waypoint)
-      add_w = true;
-
-    if (add_w)
-    {
-      //started race?
-      if (waypoint == START_WAYPOINT && r->start_time == -1)
-      {
-        r->start_race();
-        cout << "START" << endl;
-      }
-
-      r->addWaypoint(waypoint);
-
-      //print robot info
-      r->print();
-    }
+    // consume waypoint if relevant
+    r->consumeRouteWaypoint(waypoint, semaphoreState);
   }
 }
 
@@ -164,8 +144,8 @@ int main(int argc, char **argv)
   //ros::Subscriber sub1 = n1.subscribe(ROBOT_TIME_TOPIC, 1, saveRobotTimeCallback);
   //ros::Subscriber sub2 = n2.subscribe(BOUNDARIES_TOPIC, 1, GeneralizedCallback); //Change
   ros::Subscriber sub3 = n3.subscribe(WAYPOINTS_TOPIC, 1, WaypointsCallback);
-  //ros::Subscriber sub4 = n4.subscribe(SEMAPHORE_TOPIC, 1, GeneralizedCallback); //Change
-  //ros::Subscriber sub5 = n5.subscribe(SEMAPHORE_STATE_TOPIC, 1, SemaphoreCallback);
+  //ros::Subscriber sub4 = n4.subscribe(SEMAPHORE_TOPIC, 1, SemaphoreCallback);
+  ros::Subscriber sub5 = n5.subscribe(SEMAPHORE_STATE_TOPIC, 1, SemaphoreStateCallback);
 
   //ROS_INFO("Listening on /conde_referee_robot_time");
 
