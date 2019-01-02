@@ -6,6 +6,8 @@
 #include <iostream>
 #include "utils.h"
 
+#define LAPS 3
+
 using namespace std;
 
 /*
@@ -66,6 +68,25 @@ bool goesToRight(int last_waypoint)
         return true;
     else
         return false;
+}
+
+int nWaypointsLeft(vector<int> route)
+{
+    return (9 * LAPS + 1) - route.size();
+}
+
+bool hasFinishRace(vector<int> route)
+{
+
+    if (nWaypointsLeft(route) == 0)
+        return true;
+    else
+        return false;
+}
+
+int getCurrentLap(vector<int> route)
+{
+    return floor(route.size() / (9 * LAPS + 1));
 }
 
 #endif

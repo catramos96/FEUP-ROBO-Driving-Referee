@@ -8,10 +8,10 @@
 #include <ctime>
 
 #define BOUNDARIES_TOPIC "/boundaries_colisions"
-#define ROBOT_TIME_TOPIC "/conde_referee_robot_time"
 #define WAYPOINTS_TOPIC "/waypoints"
 #define SEMAPHORE_TOPIC "/semaphore"
 #define SEMAPHORE_STATE_TOPIC "/conde_signalling_panel_state"
+#define PARK_TOPIC "/park"
 
 #define START_WAYPOINT 1
 
@@ -26,7 +26,8 @@ enum Sensor
 {
     WAYPOINT,
     SEMAPHORE,
-    BOUNDARY
+    BOUNDARY,
+    PARKING
 };
 
 enum SemaphoreState
@@ -65,6 +66,8 @@ string getSensorName(Sensor s)
         return "BOUNDARY";
     case SEMAPHORE:
         return "SEMAPHORE";
+    case PARK:
+        return "PARKING";
     }
 }
 
@@ -76,6 +79,8 @@ Sensor getSensor(string name)
         return BOUNDARY;
     else if (name.compare("SEMAPHORE") == 0)
         return SEMAPHORE;
+    else if (name.compare("PARKING") == 0)
+        return PARKING;
 }
 
 string buildMessage(Sensor s, string collision1, string collision2)
@@ -113,6 +118,7 @@ string buildMessage(Sensor s, string collision1, string collision2)
     }
     case BOUNDARY:
     case SEMAPHORE:
+    case PARKING:
     {
         message = getSensorName(s) + SEPARATOR + robotName;
         break;

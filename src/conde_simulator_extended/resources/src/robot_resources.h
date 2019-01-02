@@ -5,19 +5,21 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <time.h>
+#include <chrono>
+#include <ctime>
 
 #include "utils.h"
 #include "logic.h"
 
 using namespace std;
+using namespace std::chrono;
 
 class Robot
 {
   public:
     string name = "";
-    time_t start_time = -1;
-    time_t end_time = -1;
+    high_resolution_clock::time_point start_time;
+    high_resolution_clock::time_point end_time;
     vector<int> route = vector<int>();
     vector<int> next_route = vector<int>(); //route to be performed
     int score = 0;
@@ -33,8 +35,8 @@ class Robot
         next_route.push_back(START_WAYPOINT);
     };
     void setName(string new_name) { name = new_name; };
-    void start_race() { start_time = time(0); };
-    void end_race() { end_time = time(0); }; //tmp
+    void startRace() { start_time = high_resolution_clock::now(); };
+    void endRace() { end_time = high_resolution_clock::now(); };
     void addPenalty(int new_penalty) { penalties += new_penalty; };
     void addScore(int new_score) { score += new_score; };
     void updateSemState(SemaphoreState state) { last_semaphore = state; };
@@ -45,69 +47,92 @@ class Robot
         else
             return 8;
     };
+    double getRaceTime()
+    {
+        if (!hasFinishRace(route))
+            return -1;
+        else
+            return duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    }
     bool consumeRouteWaypoint(int waypoint, SemaphoreState state)
     {
-        int next_waypoint = START_WAYPOINT;
-
-        if (next_route.size() != 0)
-            next_waypoint = next_route[0];
-        else
+        if (!hasFinishRace(route))
         {
-            next_route = {START_WAYPOINT};
-            next_waypoint = START_WAYPOINT;
-        }
+            int next_waypoint = START_WAYPOINT;
 
-        //corect path
-        if (waypoint == next_waypoint)
-        {
-            //near semaphore
-            if (waypoint == START_WAYPOINT)
+            if (next_route.size() != 0)
+                next_waypoint = next_route[0];
+            else
             {
-                //check if the robot already started the race
-                if (start_time == -1)
-                    start_race();
-
-                if (state == STOP)
-                {
-                    cout << "TODO: Apply Penalization" << endl;
-                }
-                else
-                {
-                    next_route = getNextRoute(state, goesToRight(getLastWaypoint()));
-                }
+                next_route = {START_WAYPOINT};
+                next_waypoint = START_WAYPOINT;
             }
 
-            //add waypoint to route
-            route.push_back(next_waypoint);
+            //corect path
+            if (waypoint == next_waypoint)
+            {
+                //near semaphore
+                if (waypoint == START_WAYPOINT)
+                {
+                    //check if the robot already started the race
+                    if (route.size() == 0)
+                        startRace();
 
-            //remove waypoint from next route if not removed
-            //when route was updated (near semaphore)
-            if (next_route[0] == next_waypoint)
-                next_route.erase(next_route.begin());
+                    if (state == STOP)
+                    {
+                        cout << "TODO: Apply Penalization and logic" << endl;
+                    }
+                    else
+                    {
+                        next_route = getNextRoute(state, goesToRight(getLastWaypoint()));
+                    }
+                }
 
-            print();
-        }
-        else if (waypoint != getLastWaypoint())
-        {
-            cout << "WRONG WAYPOINT: Waypoint should have been " << next_waypoint << " but was " << waypoint << endl;
+                //add waypoint to route
+                route.push_back(next_waypoint);
+
+                //remove waypoint from next route if not removed
+                //when route was updated (near semaphore)
+                if (next_route[0] == next_waypoint)
+                    next_route.erase(next_route.begin());
+
+                //finish route
+                if (hasFinishRace(route))
+                {
+                    endRace();
+                    next_route = {};
+                }
+
+                print();
+            }
+            else if (waypoint != getLastWaypoint())
+            {
+                cout << "WRONG WAYPOINT: Waypoint should have been " << next_waypoint << " but was " << waypoint << endl;
+            }
         }
     };
     void print(void)
     {
-        char buffer1[100];
-        char buffer2[100];
-
-        time_t current = time(0);
-
-        strftime(buffer1, 100, "%Y-%m-%d %H:%M:%S", localtime(&start_time));
-        strftime(buffer2, 100, "%Y-%m-%d %H:%M:%S", localtime(&current));
-
-        string st = buffer1;
-        string et = buffer2;
-
         string p = "NAME: " + name + "\n";
-        p += "START TIME: " + st + " , RAW: " + to_string(start_time) + "\n";
-        p += "CURRENT TIME: " + et + " , RAW: " + to_string(current) + "\n";
+        p += "LAPS: " + to_string(getCurrentLap(route)) + "/" + to_string(LAPS) + "\n";
+        if (hasFinishRace(route))
+        {
+            p += "STATUS: finished\n";
+            auto m = duration_cast<chrono::minutes>(end_time - start_time).count();
+            auto s = duration_cast<chrono::seconds>(end_time - start_time).count() - m * 60;
+            auto ms = duration_cast<chrono::milliseconds>(end_time - start_time).count() - s * 1000;
+            p += "ELAPSED TIME: " + to_string(m) + ":" + to_string(s) + "." + to_string(ms) + "\n";
+        }
+        else
+        {
+            p += "STATUS: ongoing\n";
+            high_resolution_clock::time_point current = high_resolution_clock::now();
+            auto m = duration_cast<chrono::minutes>(current - start_time).count();
+            auto s = duration_cast<chrono::seconds>(current - start_time).count() - m * 60;
+            auto ms = duration_cast<chrono::milliseconds>(current - start_time).count() - s * 1000;
+            p += "ELAPSED TIME: " + to_string(m) + ":" + to_string(s) + "." + to_string(ms) + "\n";
+        }
+
         p += "ROUTE: ";
 
         for (int i = 0; i < route.size(); i++)
