@@ -72,16 +72,9 @@ void ContactWaypointsPlugin::OnUpdate()
 
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
-    std_msgs::String str;
-    str.data = "Waypoints: " + contacts.contact(i).collision1() + " " + contacts.contact(i).collision2() + "\n";
-    this->pub.publish(str);
-
-        std::cout << "Collision between[" << contacts.contact(i).collision1()
-              << "] and [" << contacts.contact(i).collision2() << "]\n";
-
-    /*
-    TODO: Create messages with id/name of the objects that collided and the time.
-    */
+    std_msgs::String msg;
+    msg.data = buildMessage(WAYPOINT, contacts.contact(i).collision1(), contacts.contact(i).collision2());
+    this->pub.publish(msg);
   }
 }
 
