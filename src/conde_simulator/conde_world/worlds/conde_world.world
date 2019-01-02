@@ -510,6 +510,46 @@
             </sensor>
          </link>
       </model>
+      <model name="track_inside">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_inside.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <sensor name="collision" type="contact">
+               <plugin name="contactplugin" filename="libcontact_borders.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
+      <model name="track_outside">
+         <static>1</static>
+         <link name="bumper_sensor">
+            <pose>2.475 0 0 0 0 0</pose>
+            <collision name="bumper_sensor">
+               <geometry>
+                  <mesh>
+                     <scale>1 1 1</scale>
+                     <uri>model://meshes/track_outside.stl</uri>
+                  </mesh>
+               </geometry>
+            </collision>
+            <sensor name="collision" type="contact">
+               <plugin name="contactplugin" filename="libcontact_borders.so" />
+               <contact>
+                  <collision>bumper_sensor</collision>
+               </contact>
+            </sensor>
+         </link>
+      </model>
       <model name="semaphore_monitor">
          <static>1</static>
          <pose>1.8 0 0 0 -0 0</pose>
