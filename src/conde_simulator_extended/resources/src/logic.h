@@ -19,37 +19,47 @@ using namespace std;
 */
 vector<int> getNextRoute(SemaphoreState semaphore, bool to_right)
 {
-    vector<int> route = vector<int>();
+    vector<int> route;
 
     switch (semaphore)
     {
     case UP:
     {
-        if (to_right)
-            route = {2, 3, 4, 5, 1};
-        else
-            route = {6, 7, 8, 1};
+        if (to_right) {
+            int aux[] = {2, 3, 4, 5, 1};
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        } else {
+            int aux[] = {6, 7, 8, 1};
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        }            
         break;
     }
     case STOP:
     {
-        route = {1};
+        int aux[] = {1};
+        route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
         break;
     }
     case LEFT:
     {
-        if (to_right)
-            route = {5, 4, 3, 2, 1};
-        else
-            route = {6, 7, 8, 1}; //ignore and go up
+        if (to_right) {
+            int aux[] = {5, 4, 3, 2, 1};
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        } else {
+            int aux[] = {6, 7, 8, 1}; //ignore and go up
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        }
         break;
     }
     case RIGHT:
     {
-        if (to_right)
-            route = {2, 3, 4, 5, 1}; //ignore and go up
-        else
-            route = {8, 7, 6, 1};
+        if (to_right) {
+            int aux[] = {2, 3, 4, 5, 1}; //ignore and go up
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        } else {
+            int aux[] = {8, 7, 6, 1};
+            route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
+        }            
         break;
     }
     case PARK:

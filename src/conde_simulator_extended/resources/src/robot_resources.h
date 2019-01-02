@@ -5,38 +5,38 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <chrono>
-#include <ctime>
+#include "ros/ros.h"
+#include "boost/lexical_cast.hpp"
 
 #include "utils.h"
 #include "logic.h"
 
 using namespace std;
-using namespace std::chrono;
 
 class Robot
 {
   public:
-    string name = "";
-    high_resolution_clock::time_point start_time;
-    high_resolution_clock::time_point end_time;
-    vector<int> route = vector<int>();
-    vector<int> next_route = vector<int>(); //route to be performed
-    int score = 0;
-    int penalties = 0;
-    SemaphoreState last_semaphore = UP;
+    string name;
+    double start_time;
+    double end_time;
+    vector<int> route;
+    vector<int> next_route; //route to be performed
+    int score;
+    int penalties;
+    SemaphoreState last_semaphore;
 
   public:
     Robot(string name)
     {
+        score = 0;
+        penalties = 0;
+        last_semaphore = UP;
         setName(name);
-        route = vector<int>();
-        next_route = vector<int>();
         next_route.push_back(START_WAYPOINT);
     };
     void setName(string new_name) { name = new_name; };
-    void startRace() { start_time = high_resolution_clock::now(); };
-    void endRace() { end_time = high_resolution_clock::now(); };
+    void startRace() { start_time = ros::Time::now().toSec(); };
+    void endRace() { end_time = ros::Time::now().toSec(); };
     void addPenalty(int new_penalty) { penalties += new_penalty; };
     void addScore(int new_score) { score += new_score; };
     void updateSemState(SemaphoreState state) { last_semaphore = state; };
@@ -52,7 +52,7 @@ class Robot
         if (!hasFinishRace(route))
             return -1;
         else
-            return duration_cast<chrono::milliseconds>(end_time - start_time).count();
+            return (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
     }
     bool consumeRouteWaypoint(int waypoint, SemaphoreState state)
     {
@@ -64,7 +64,8 @@ class Robot
                 next_waypoint = next_route[0];
             else
             {
-                next_route = {START_WAYPOINT};
+                next_route.clear();
+                next_route.push_back(START_WAYPOINT);
                 next_waypoint = START_WAYPOINT;
             }
 
@@ -100,7 +101,7 @@ class Robot
                 if (hasFinishRace(route))
                 {
                     endRace();
-                    next_route = {};
+                    next_route.clear();
                 }
 
                 print();
@@ -114,23 +115,25 @@ class Robot
     void print(void)
     {
         string p = "NAME: " + name + "\n";
-        p += "LAPS: " + to_string(getCurrentLap(route)) + "/" + to_string(LAPS) + "\n";
+        p += "LAPS: " + getCurrentLap(route) +  boost::lexical_cast<string>("/") + boost::lexical_cast<string>(LAPS) + "\n";
         if (hasFinishRace(route))
         {
             p += "STATUS: finished\n";
-            auto m = duration_cast<chrono::minutes>(end_time - start_time).count();
-            auto s = duration_cast<chrono::seconds>(end_time - start_time).count() - m * 60;
-            auto ms = duration_cast<chrono::milliseconds>(end_time - start_time).count() - s * 1000;
-            p += "ELAPSED TIME: " + to_string(m) + ":" + to_string(s) + "." + to_string(ms) + "\n";
+            double m = (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
+            double s = (ros::Duration(end_time) - ros::Duration(start_time)).toSec() - m * 60;
+            double ms = (ros::Duration(end_time) - ros::Duration(start_time)).toSec()- s * 1000;
+            p += "ELAPSED TIME: " + boost::lexical_cast<string>(m) + ":" + boost::lexical_cast<string>(s) + "." + 
+                boost::lexical_cast<string>(ms) + "\n";
         }
         else
         {
             p += "STATUS: ongoing\n";
-            high_resolution_clock::time_point current = high_resolution_clock::now();
-            auto m = duration_cast<chrono::minutes>(current - start_time).count();
-            auto s = duration_cast<chrono::seconds>(current - start_time).count() - m * 60;
-            auto ms = duration_cast<chrono::milliseconds>(current - start_time).count() - s * 1000;
-            p += "ELAPSED TIME: " + to_string(m) + ":" + to_string(s) + "." + to_string(ms) + "\n";
+            double current = ros::Time::now().toSec();
+            double m = (ros::Duration(current) - ros::Duration(start_time)).toSec();
+            double s = (ros::Duration(current) - ros::Duration(start_time)).toSec() - m * 60;
+            double ms = (ros::Duration(current) - ros::Duration(start_time)).toSec() - s * 1000;
+            p += "ELAPSED TIME: " + boost::lexical_cast<string>(m) + ":" + boost::lexical_cast<string>(s) + "." + 
+                boost::lexical_cast<string>(ms) + "\n";
         }
 
         p += "ROUTE: ";
@@ -138,9 +141,9 @@ class Robot
         for (int i = 0; i < route.size(); i++)
         {
             if (i == 0)
-                p += to_string(route[i]);
+                p += route[i];
             else
-                p += " - " + to_string(route[i]);
+                p += " - " + route[i];
         }
 
         p += "\nNEXT ROUTE: ";
@@ -148,13 +151,13 @@ class Robot
         for (int i = 0; i < next_route.size(); i++)
         {
             if (i == 0)
-                p += to_string(next_route[i]);
+                p += next_route[i];
             else
-                p += " - " + to_string(next_route[i]);
+                p += " - " + next_route[i];
         }
 
-        p += "\nSCORE: " + to_string(score);
-        p += "\nPENALTIES: " + to_string(penalties);
+        p += "\nSCORE: " + score;
+        p += "\nPENALTIES: " + penalties;
         p += "\nSEMAPHORE: " + getSemaphoreName(last_semaphore) + "\n\n";
 
         cout << p;
