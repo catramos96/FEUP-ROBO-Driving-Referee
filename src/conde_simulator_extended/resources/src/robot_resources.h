@@ -13,6 +13,21 @@
 
 using namespace std;
 
+class RobotCollision {
+    public:
+        string component;
+        bool isColliding;
+
+    RobotCollision(string component, bool colliding)
+    {
+        setComponent(component);
+        setCollisionState(colliding);
+    };
+
+    void setComponent(string new_component) { component = new_component; };
+    void setCollisionState(bool state) { isColliding = state; };
+};
+
 class Robot
 {
   public:
@@ -21,6 +36,10 @@ class Robot
     double end_time;
     vector<int> route;
     vector<int> next_route; //route to be performed
+    vector<RobotCollision *> insideCollisions; // info on wheter the robot is inside the track
+    vector<RobotCollision *> boundariesCollisions; // info on wheter the robot is touching the boundaries
+    vector<RobotCollision *> outsideCollisions; // info on wheter the robot is outside the track
+    bool hadBoundaryCollision;
     int score;
     int penalties;
     SemaphoreState last_semaphore;
@@ -33,6 +52,9 @@ class Robot
         last_semaphore = UP;
         setName(name);
         next_route.push_back(START_WAYPOINT);
+
+        setBoundaryCollision(false);
+        initializeCollisionVectors();
     };
     void setName(string new_name) { name = new_name; };
     void startRace() { start_time = ros::Time::now().toSec(); };
@@ -40,6 +62,7 @@ class Robot
     void addPenalty(int new_penalty) { penalties += new_penalty; };
     void addScore(int new_score) { score += new_score; };
     void updateSemState(SemaphoreState state) { last_semaphore = state; };
+    void setBoundaryCollision(bool state) { hadBoundaryCollision = state; };
     int getLastWaypoint()
     {
         if (route.size() != 0)
@@ -112,6 +135,82 @@ class Robot
             }
         }
     };
+    void initializeCollisionVectors() { 
+        RobotCollision *right_wheel = new RobotCollision("right_wheel_collision", false);
+        RobotCollision *left_wheel = new RobotCollision("left_wheel_collision", false);
+        RobotCollision *front_wheel = new RobotCollision("chassis_collision", false);
+
+        insideCollisions.push_back(right_wheel);
+        insideCollisions.push_back(left_wheel);
+        insideCollisions.push_back(front_wheel);
+        
+        outsideCollisions.push_back(right_wheel);
+        outsideCollisions.push_back(left_wheel);
+        outsideCollisions.push_back(front_wheel);
+
+        boundariesCollisions.push_back(right_wheel);
+        boundariesCollisions.push_back(left_wheel);
+        boundariesCollisions.push_back(front_wheel);
+    };
+    bool setCollisionStateBySensor(string component, Sensor sensor, bool state) {
+        switch (sensor)
+        {
+        case TRACK_OUTSIDE:
+            for (int i = 0; i < outsideCollisions.size(); i++)
+            {
+                if (component.compare(outsideCollisions[i]->component) == 0)
+                {
+                    outsideCollisions[i]->setCollisionState(state);
+                    return true;
+                }
+            }
+            break;
+        case TRACK_INSIDE:
+            for (int i = 0; i < insideCollisions.size(); i++)
+            {
+                if (component.compare(insideCollisions[i]->component) == 0)
+                {
+                    insideCollisions[i]->setCollisionState(state);
+                    return true;
+                }
+            }
+            break;
+        case TRACK_BOUNDS:
+            for (int i = 0; i < boundariesCollisions.size(); i++)
+            {
+                if (component.compare(boundariesCollisions[i]->component) == 0)
+                {
+                    boundariesCollisions[i]->setCollisionState(state);
+                    return true;
+                }
+            }
+            break;
+        }
+
+        return false;
+    }
+    bool isInsideTrack() {
+        for (int i = 0; i < insideCollisions.size(); i++)
+        {
+            if (insideCollisions[i]->isColliding == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    bool isOutsideTrack() {
+        for (int i = 0; i < outsideCollisions.size(); i++)
+        {
+            if (outsideCollisions[i]->isColliding == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
     void print(void)
     {
         string p = "NAME: " + name + "\n";
