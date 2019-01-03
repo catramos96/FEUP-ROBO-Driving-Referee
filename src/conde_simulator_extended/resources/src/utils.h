@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include <ctime>
 
 #define BOUNDARIES_TOPIC "/boundaries_colisions"
@@ -26,7 +27,10 @@ enum Sensor
 {
     WAYPOINT,
     SEMAPHORE,
-    BOUNDARY,
+    TRACK,
+    TRACK_BOUNDS,
+    TRACK_INSIDE,
+    TRACK_OUTSIDE,
     PARKING
 };
 
@@ -62,11 +66,17 @@ string getSensorName(Sensor s)
     {
     case WAYPOINT:
         return "WAYPOINT";
-    case BOUNDARY:
-        return "BOUNDARY";
+    case TRACK:
+        return "TRACK";
+    case TRACK_BOUNDS:
+        return "TRACK_BOUNDS";
+    case TRACK_INSIDE:
+        return "TRACK_INSIDE";
+    case TRACK_OUTSIDE:
+        return "TRACK_OUTSIDE";
     case SEMAPHORE:
         return "SEMAPHORE";
-    case PARK:
+    case PARKING:
         return "PARKING";
     }
 }
@@ -75,8 +85,14 @@ Sensor getSensor(string name)
 {
     if (name.compare("WAYPOINT") == 0)
         return WAYPOINT;
-    else if (name.compare("BOUNDARY") == 0)
-        return BOUNDARY;
+    else if (name.compare("TRACK") == 0)
+        return TRACK;
+    else if (name.compare("TRACK_BOUNDS") == 0)
+        return TRACK_BOUNDS;
+    else if (name.compare("TRACK_INSIDE") == 0)
+        return TRACK_INSIDE;
+    else if (name.compare("TRACK_OUTSIDE") == 0)
+        return TRACK_OUTSIDE;
     else if (name.compare("SEMAPHORE") == 0)
         return SEMAPHORE;
     else if (name.compare("PARKING") == 0)
@@ -116,7 +132,13 @@ string buildMessage(Sensor s, string collision1, string collision2)
         message = getSensorName(s) + SEPARATOR + robotName + SEPARATOR + parts3[parts3.size() - 1];
         break;
     }
-    case BOUNDARY:
+    case TRACK:
+    {
+        string sensorType = to_upper_copy<string>(sensorName);
+        message = getSensorName(s) + SEPARATOR + sensorType + SEPARATOR + robotName + SEPARATOR + parts1[1];
+        cout << message << endl;
+        break;
+    }
     case SEMAPHORE:
     case PARKING:
     {
