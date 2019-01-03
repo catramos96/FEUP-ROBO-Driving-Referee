@@ -108,32 +108,39 @@ class Robot
             }
             else if (waypoint != getLastWaypoint())
             {
-                cout << "WRONG WAYPOINT: Waypoint should have been " << next_waypoint << " but was " << waypoint << endl;
+                cout << "WRONG WAYPOINT: Waypoint should have been " << boost::lexical_cast<string>(next_waypoint) << " but was " << boost::lexical_cast<string>(waypoint) << endl;
             }
         }
     };
     void print(void)
     {
         string p = "NAME: " + name + "\n";
-        p += "LAPS: " + getCurrentLap(route) +  boost::lexical_cast<string>("/") + boost::lexical_cast<string>(LAPS) + "\n";
+        p += "LAPS: " + boost::lexical_cast<string>(getCurrentLap(route)) + boost::lexical_cast<string>("/") + boost::lexical_cast<string>(LAPS) + "\n";
         if (hasFinishRace(route))
         {
             p += "STATUS: finished\n";
-            double m = (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
-            double s = (ros::Duration(end_time) - ros::Duration(start_time)).toSec() - m * 60;
-            double ms = (ros::Duration(end_time) - ros::Duration(start_time)).toSec()- s * 1000;
-            p += "ELAPSED TIME: " + boost::lexical_cast<string>(m) + ":" + boost::lexical_cast<string>(s) + "." + 
-                boost::lexical_cast<string>(ms) + "\n";
+            double secs = (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
+            double mils = (int)((secs - (int)secs) * 1000);
+            secs = secs - mils / 1000;
+            double mins = (int)(secs / 60);
+            secs = (int)(secs - mins * 60);
+
+            p += "ELAPSED TIME: " + boost::lexical_cast<string>(mins) + ":" + boost::lexical_cast<string>(secs) + "." +
+                 boost::lexical_cast<string>(mils) + "\n";
         }
         else
         {
             p += "STATUS: ongoing\n";
+
             double current = ros::Time::now().toSec();
-            double m = (ros::Duration(current) - ros::Duration(start_time)).toSec();
-            double s = (ros::Duration(current) - ros::Duration(start_time)).toSec() - m * 60;
-            double ms = (ros::Duration(current) - ros::Duration(start_time)).toSec() - s * 1000;
-            p += "ELAPSED TIME: " + boost::lexical_cast<string>(m) + ":" + boost::lexical_cast<string>(s) + "." + 
-                boost::lexical_cast<string>(ms) + "\n";
+            double secs = (ros::Duration(current) - ros::Duration(start_time)).toSec();
+            double mils = (int)((secs - (int)secs) * 1000);
+            secs = secs - mils / 1000;
+            double mins = (int)(secs / 60);
+            secs = (int)(secs - mins * 60);
+
+            p += "ELAPSED TIME: " + boost::lexical_cast<string>(mins) + ":" + boost::lexical_cast<string>(secs) + "." +
+                 boost::lexical_cast<string>(mils) + "\n";
         }
 
         p += "ROUTE: ";
@@ -141,9 +148,9 @@ class Robot
         for (int i = 0; i < route.size(); i++)
         {
             if (i == 0)
-                p += route[i];
+                p += boost::lexical_cast<string>(route[i]);
             else
-                p += " - " + route[i];
+                p += " - " + boost::lexical_cast<string>(route[i]);
         }
 
         p += "\nNEXT ROUTE: ";
@@ -151,13 +158,13 @@ class Robot
         for (int i = 0; i < next_route.size(); i++)
         {
             if (i == 0)
-                p += next_route[i];
+                p += boost::lexical_cast<string>(next_route[i]);
             else
-                p += " - " + next_route[i];
+                p += " - " + boost::lexical_cast<string>(next_route[i]);
         }
 
-        p += "\nSCORE: " + score;
-        p += "\nPENALTIES: " + penalties;
+        p += "\nSCORE: " + boost::lexical_cast<string>(score);
+        p += "\nPENALTIES: " + boost::lexical_cast<string>(penalties);
         p += "\nSEMAPHORE: " + getSemaphoreName(last_semaphore) + "\n\n";
 
         cout << p;
