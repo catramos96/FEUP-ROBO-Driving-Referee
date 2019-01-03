@@ -10,7 +10,7 @@
 
 using namespace std;
 
-vector<Robot *> robots = vector<Robot *>();
+vector<Robot *> robots;
 SemaphoreState semaphoreState = UP;
 
 Robot* getRobotByName(string name) {
@@ -135,7 +135,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
           if(r->isOutsideTrack()) {
-            cout << r->name << " desqualificado!\n";
+            cout << r->name << " DISQUALIFIED!" << endl;
           }
           break;
       case TRACK_INSIDE:
@@ -147,7 +147,9 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           if(r->isInsideTrack() && r->hadBoundaryCollision) {
             r->addPenalty(10);
             r->setBoundaryCollision(false);
+            cout << r->name << " PENALTY!" << endl;
           }
+
           break;
       case TRACK_BOUNDS:
           r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, true);

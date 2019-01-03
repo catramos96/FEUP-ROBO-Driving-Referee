@@ -135,7 +135,7 @@ string buildMessage(Sensor s, string collision1, string collision2)
     case TRACK:
     {
         string sensorType = to_upper_copy<string>(sensorName);
-        message = getSensorName(s) + SEPARATOR + sensorType + SEPARATOR + robotName + SEPARATOR + parts1[parts1.size() - 1];
+        message = getSensorName(s) + SEPARATOR + sensorType + SEPARATOR + robotName + SEPARATOR + parts1[1];
         cout << message << endl;
         break;
     }

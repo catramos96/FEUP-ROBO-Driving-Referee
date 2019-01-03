@@ -47,9 +47,7 @@ void ContactPlugin::OnUpdate()
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
     std_msgs::String msg;
-    std::cout << contacts.contact(i).collision1()
-              << " >> " << contacts.contact(i).collision2() << "\n";
-    //msg.data = buildMessage(TRACK, contacts.contact(i).collision1(), contacts.contact(i).collision2());
-    //this->pub.publish(msg);
+    msg.data = buildMessage(TRACK, contacts.contact(i).collision1(), contacts.contact(i).collision2());
+    this->pub.publish(msg);
   }
 }

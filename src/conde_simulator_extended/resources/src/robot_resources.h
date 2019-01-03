@@ -36,9 +36,9 @@ class Robot
     double end_time;
     vector<int> route;
     vector<int> next_route; //route to be performed
-    vector<RobotCollision *> insideCollisions; // info on wheter the robot is inside the track
-    vector<RobotCollision *> boundariesCollisions; // info on wheter the robot is touching the boundaries
-    vector<RobotCollision *> outsideCollisions; // info on wheter the robot is outside the track
+    vector<RobotCollision> insideCollisions; // info on wheter the robot is inside the track
+    vector<RobotCollision> boundariesCollisions; // info on wheter the robot is touching the boundaries
+    vector<RobotCollision> outsideCollisions; // info on wheter the robot is outside the track
     bool hadBoundaryCollision;
     int score;
     int penalties;
@@ -136,9 +136,9 @@ class Robot
         }
     };
     void initializeCollisionVectors() { 
-        RobotCollision *right_wheel = new RobotCollision("right_wheel_collision", false);
-        RobotCollision *left_wheel = new RobotCollision("left_wheel_collision", false);
-        RobotCollision *front_wheel = new RobotCollision("chassis_collision", false);
+        RobotCollision right_wheel = RobotCollision("right_wheel", false);
+        RobotCollision left_wheel = RobotCollision("left_wheel", false);
+        RobotCollision front_wheel = RobotCollision("chassis", false);
 
         insideCollisions.push_back(right_wheel);
         insideCollisions.push_back(left_wheel);
@@ -153,14 +153,16 @@ class Robot
         boundariesCollisions.push_back(front_wheel);
     };
     bool setCollisionStateBySensor(string component, Sensor sensor, bool state) {
+        //cout << component << " - " << sensor << " - " << state << endl;
         switch (sensor)
         {
         case TRACK_OUTSIDE:
+            
             for (int i = 0; i < outsideCollisions.size(); i++)
             {
-                if (component.compare(outsideCollisions[i]->component) == 0)
+                if (component.compare(outsideCollisions[i].component) == 0)
                 {
-                    outsideCollisions[i]->setCollisionState(state);
+                    outsideCollisions[i].setCollisionState(state);
                     return true;
                 }
             }
@@ -168,9 +170,9 @@ class Robot
         case TRACK_INSIDE:
             for (int i = 0; i < insideCollisions.size(); i++)
             {
-                if (component.compare(insideCollisions[i]->component) == 0)
+                if (component.compare(insideCollisions[i].component) == 0)
                 {
-                    insideCollisions[i]->setCollisionState(state);
+                    insideCollisions[i].setCollisionState(state);
                     return true;
                 }
             }
@@ -178,9 +180,9 @@ class Robot
         case TRACK_BOUNDS:
             for (int i = 0; i < boundariesCollisions.size(); i++)
             {
-                if (component.compare(boundariesCollisions[i]->component) == 0)
+                if (component.compare(boundariesCollisions[i].component) == 0)
                 {
-                    boundariesCollisions[i]->setCollisionState(state);
+                    boundariesCollisions[i].setCollisionState(state);
                     return true;
                 }
             }
@@ -192,7 +194,7 @@ class Robot
     bool isInsideTrack() {
         for (int i = 0; i < insideCollisions.size(); i++)
         {
-            if (insideCollisions[i]->isColliding == false)
+            if (insideCollisions[i].isColliding == false)
             {
                 return false;
             }
@@ -203,7 +205,7 @@ class Robot
     bool isOutsideTrack() {
         for (int i = 0; i < outsideCollisions.size(); i++)
         {
-            if (outsideCollisions[i]->isColliding == false)
+            if (outsideCollisions[i].isColliding == false)
             {
                 return false;
             }
