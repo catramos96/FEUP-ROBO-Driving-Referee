@@ -45,6 +45,7 @@ class Robot
     int penalties;
     SemaphoreState last_semaphore;
     Sensor last_penalty;
+    RaceState race_state;
 
   public:
     Robot(string name)
@@ -59,12 +60,16 @@ class Robot
         initializeCollisionVectors();
     };
     void setName(string new_name) { name = new_name; };
-    void startRace() { start_time = ros::Time::now().toSec(); };
+    void startRace() { start_time = ros::Time::now().toSec(); race_state = ONGOING; };
     void endRace() { end_time = ros::Time::now().toSec(); };
     void addPenalty(int new_penalty) { penalties += new_penalty; last_penalty_time = ros::Time::now().toSec(); };
     void addScore(int new_score) { score += new_score; };
     void updateSemState(SemaphoreState state) { last_semaphore = state; };
     void setBoundaryCollision(bool state) { hadBoundaryCollision = state; };
+    void setRaceState(RaceState state) { race_state = state; };
+    void setLastPenalty(Sensor sensor) { last_penalty = sensor; };
+    Sensor getLastPenalty() { return last_penalty; };
+    double getLastPenaltyTime() { return last_penalty_time; };
     int getLastWaypoint()
     {
         if (route.size() != 0)
@@ -138,6 +143,8 @@ class Robot
                 if (hasFinishRace(route))
                 {
                     endRace();
+                    if(race_state != DISQUALIFIED)
+                        race_state = FINISHED;
                     next_route.clear();
                 }
 
@@ -230,9 +237,9 @@ class Robot
     {
         string p = "NAME: " + name + "\n";
         p += "LAPS: " + boost::lexical_cast<string>(getCurrentLap(route)) + boost::lexical_cast<string>("/") + boost::lexical_cast<string>(LAPS) + "\n";
-        if (hasFinishRace(route))
+        if (race_state == FINISHED)
         {
-            p += "STATUS: finished\n";
+            p += "STATUS: " + getRaceStateName(race_state) + "\n";
             double secs = (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
             double mils = (int)((secs - (int)secs) * 1000);
             secs = secs - mils / 1000;
@@ -244,7 +251,7 @@ class Robot
         }
         else
         {
-            p += "STATUS: ongoing\n";
+            p += "STATUS: " + getRaceStateName(race_state) + "\n";
 
             double current = ros::Time::now().toSec();
             double secs = (ros::Duration(current) - ros::Duration(start_time)).toSec();

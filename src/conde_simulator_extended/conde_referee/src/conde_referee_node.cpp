@@ -135,7 +135,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
           if(r->isOutsideTrack()) {
-            // TODO: Save this info in a flag?
+            r->setRaceState(DISQUALIFIED);
             cout << r->name << " DISQUALIFIED!" << endl;
           }
           break;
@@ -146,9 +146,23 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
 
           // Penalty added when robot is back to the track
           if(r->isInsideTrack() && r->hadBoundaryCollision) {
-            r->addPenalty(10);
-            r->setBoundaryCollision(false);
-            cout << "PENALTY for robot: " << r->name << endl;
+            if(r->getLastPenalty() == TRACK_BOUNDS) {
+              double current = ros::Time::now().toSec();
+
+              // After 2 seconds it's okay to penalty again
+              // To handle a lot of messages sent by the sensor
+              if(current - r->getLastPenaltyTime() > 2) {
+                r->addPenalty(10);
+                r->setBoundaryCollision(false);
+                r->setLastPenalty(TRACK_BOUNDS);
+                cout << "PENALTY for robot: " << r->name << endl;
+              }
+            } else {
+              r->addPenalty(10);
+              r->setBoundaryCollision(false);
+              r->setLastPenalty(TRACK_BOUNDS);
+              cout << "PENALTY for robot: " << r->name << endl;
+            }
           }
 
           break;

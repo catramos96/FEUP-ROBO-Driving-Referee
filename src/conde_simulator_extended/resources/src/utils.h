@@ -43,6 +43,14 @@ enum SemaphoreState
     PARK
 };
 
+enum RaceState
+{
+    WAITING,
+    ONGOING,
+    FINISHED,
+    DISQUALIFIED,
+};
+
 string getSemaphoreName(SemaphoreState s)
 {
     switch (s)
@@ -78,6 +86,21 @@ string getSensorName(Sensor s)
         return "SEMAPHORE";
     case PARKING:
         return "PARKING";
+    }
+}
+
+string getRaceStateName(RaceState s)
+{
+    switch (s)
+    {
+    case WAITING:
+        return "WAITING TO START";
+    case ONGOING:
+        return "ONGOING";
+    case FINISHED:
+        return "FINISHED";
+    case DISQUALIFIED:
+        return "DISQUALIFIED";
     }
 }
 
