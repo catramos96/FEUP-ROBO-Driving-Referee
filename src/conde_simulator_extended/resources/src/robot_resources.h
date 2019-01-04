@@ -153,7 +153,6 @@ class Robot
         boundariesCollisions.push_back(front_wheel);
     };
     bool setCollisionStateBySensor(string component, Sensor sensor, bool state) {
-        //cout << component << " - " << sensor << " - " << state << endl;
         switch (sensor)
         {
         case TRACK_OUTSIDE:

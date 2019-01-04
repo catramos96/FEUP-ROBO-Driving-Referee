@@ -135,6 +135,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
           if(r->isOutsideTrack()) {
+            // TODO: Save this info in a flag?
             cout << r->name << " DISQUALIFIED!" << endl;
           }
           break;
@@ -147,7 +148,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           if(r->isInsideTrack() && r->hadBoundaryCollision) {
             r->addPenalty(10);
             r->setBoundaryCollision(false);
-            cout << r->name << " PENALTY!" << endl;
+            cout << "PENALTY for robot: " << r->name << endl;
           }
 
           break;
@@ -156,6 +157,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, false);
           r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, false);
           r->setBoundaryCollision(true);
+
           break;
     }
   }
