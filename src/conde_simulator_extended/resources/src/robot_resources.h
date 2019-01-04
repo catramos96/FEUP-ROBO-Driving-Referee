@@ -34,6 +34,7 @@ class Robot
     string name;
     double start_time;
     double end_time;
+    double last_penalty_time;
     vector<int> route;
     vector<int> next_route; //route to be performed
     vector<RobotCollision> insideCollisions; // info on wheter the robot is inside the track
@@ -43,6 +44,7 @@ class Robot
     int score;
     int penalties;
     SemaphoreState last_semaphore;
+    Sensor last_penalty;
 
   public:
     Robot(string name)
@@ -52,14 +54,14 @@ class Robot
         last_semaphore = UP;
         setName(name);
         next_route.push_back(START_WAYPOINT);
-
+        last_penalty_time = -1;
         setBoundaryCollision(false);
         initializeCollisionVectors();
     };
     void setName(string new_name) { name = new_name; };
     void startRace() { start_time = ros::Time::now().toSec(); };
     void endRace() { end_time = ros::Time::now().toSec(); };
-    void addPenalty(int new_penalty) { penalties += new_penalty; };
+    void addPenalty(int new_penalty) { penalties += new_penalty; last_penalty_time = ros::Time::now().toSec(); };
     void addScore(int new_score) { score += new_score; };
     void updateSemState(SemaphoreState state) { last_semaphore = state; };
     void setBoundaryCollision(bool state) { hadBoundaryCollision = state; };
@@ -104,7 +106,19 @@ class Robot
 
                     if (state == STOP)
                     {
-                        cout << "TODO: Apply Penalization and logic" << endl;
+                        // Check time of last semaphore penalty
+                        if(last_penalty == SEMAPHORE) {
+                            double current = ros::Time::now().toSec();
+
+                            // After 2 seconds it's okay to penalty again
+                            if(current - last_penalty_time > 2) {
+                                addPenalty(60);
+                                last_penalty = SEMAPHORE;
+                            }
+                        } else {
+                            addPenalty(60);
+                            last_penalty = SEMAPHORE;
+                        }                        
                     }
                     else
                     {

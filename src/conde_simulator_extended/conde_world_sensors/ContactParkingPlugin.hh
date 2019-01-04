@@ -4,11 +4,6 @@
 #include <string>
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-
-#include "ros/callback_queue.h"
-#include "ros/subscribe_options.h"
-#include <thread>
-
 #include <gazebo/gazebo.hh>
 #include <gazebo/sensors/sensors.hh>
 

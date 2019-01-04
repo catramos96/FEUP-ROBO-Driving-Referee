@@ -72,10 +72,6 @@ int main(int argc, char** argv)
         switch (opt) {
         case '0':
             im_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image[0]).toImageMsg();
-            
-            //std::stringstream ss;
-            //ss << "hello world " << count;
-            //msg.data = ss.str();
             semaphore_state.data = "LEFT";
             pub3.publish(semaphore_state);
             break;
