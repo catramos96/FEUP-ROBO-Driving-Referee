@@ -15,6 +15,10 @@
 #define PARK_TOPIC "/park"
 
 #define START_WAYPOINT 1
+#define LAPS 3
+#define DRIVING_SCORE_REFERENCE 50
+#define PARKING_SCORE_REFERENCE 60
+#define TIME_REFERENCE 35
 
 #define SEPARATOR "##"
 

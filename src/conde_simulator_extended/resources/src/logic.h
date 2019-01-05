@@ -6,8 +6,6 @@
 #include <iostream>
 #include "utils.h"
 
-#define LAPS 3
-
 using namespace std;
 
 /*

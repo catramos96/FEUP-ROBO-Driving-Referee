@@ -12,6 +12,7 @@
 #include "logic.h"
 
 using namespace std;
+using namespace boost;
 
 class RobotCollision {
     public:
@@ -37,22 +38,24 @@ class Robot
     double last_penalty_time;
     vector<int> route;
     vector<int> next_route; //route to be performed
-    vector<RobotCollision> insideCollisions; // info on wheter the robot is inside the track
-    vector<RobotCollision> boundariesCollisions; // info on wheter the robot is touching the boundaries
-    vector<RobotCollision> outsideCollisions; // info on wheter the robot is outside the track
-    bool hadBoundaryCollision;
-    int score;
-    int penalties;
-    SemaphoreState last_semaphore;
+    vector<RobotCollision> inside_collisions; // info on wheter the robot is inside the track
+    vector<RobotCollision> boundaries_collisions; // info on wheter the robot is touching the boundaries
+    vector<RobotCollision> outside_collisions; // info on wheter the robot is outside the track
+    bool had_boundary_collision;
+    double driving_score;
+    double parking_score;
+    int driving_penalties;
+    int parking_penalties;
     Sensor last_penalty;
     RaceState race_state;
 
   public:
     Robot(string name)
     {
-        score = 0;
-        penalties = 0;
-        last_semaphore = UP;
+        driving_score = 0;
+        parking_score = 0;
+        driving_penalties = 0;
+        parking_penalties = 0;
         setName(name);
         next_route.push_back(START_WAYPOINT);
         last_penalty_time = -1;
@@ -62,14 +65,14 @@ class Robot
     void setName(string new_name) { name = new_name; };
     void startRace() { start_time = ros::Time::now().toSec(); race_state = ONGOING; };
     void endRace() { end_time = ros::Time::now().toSec(); };
-    void addPenalty(int new_penalty) { penalties += new_penalty; last_penalty_time = ros::Time::now().toSec(); };
-    void addScore(int new_score) { score += new_score; };
-    void updateSemState(SemaphoreState state) { last_semaphore = state; };
-    void setBoundaryCollision(bool state) { hadBoundaryCollision = state; };
+    void addDrivingPenalty(int new_penalty) { driving_penalties += new_penalty; last_penalty_time = ros::Time::now().toSec(); };
+    void setBoundaryCollision(bool state) { had_boundary_collision = state; };
     void setRaceState(RaceState state) { race_state = state; };
     void setLastPenalty(Sensor sensor) { last_penalty = sensor; };
+    RaceState getRaceState() { return race_state; };
     Sensor getLastPenalty() { return last_penalty; };
     double getLastPenaltyTime() { return last_penalty_time; };
+    bool getHadBoundaryCollision() { return had_boundary_collision; };
     int getLastWaypoint()
     {
         if (route.size() != 0)
@@ -84,8 +87,21 @@ class Robot
         else
             return (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
     }
-    bool consumeRouteWaypoint(int waypoint, SemaphoreState state)
+    void calculateDrivingScore() { // Driving with signs
+        int half_laps = LAPS * 2;
+        driving_score = half_laps * DRIVING_SCORE_REFERENCE + (half_laps * TIME_REFERENCE - end_time) - driving_penalties;
+    };
+    void calculateParkingScore() { // Parallel or Bay parking without obstacles
+        parking_score = PARKING_SCORE_REFERENCE - parking_penalties;
+    };
+    void consumeRouteWaypoint(int waypoint, SemaphoreState state)
     {
+        int last_waypoint = getLastWaypoint();
+
+        // No need to double check - Several messages are received during the time the robot passes through the sensor
+        if(waypoint == last_waypoint)
+            return;
+
         if (!hasFinishRace(route))
         {
             int next_waypoint = START_WAYPOINT;
@@ -117,17 +133,18 @@ class Robot
 
                             // After 2 seconds it's okay to penalty again
                             if(current - last_penalty_time > 2) {
-                                addPenalty(60);
+                                addDrivingPenalty(60);
                                 last_penalty = SEMAPHORE;
                             }
+
                         } else {
-                            addPenalty(60);
+                            addDrivingPenalty(60);
                             last_penalty = SEMAPHORE;
                         }                        
                     }
                     else
                     {
-                        next_route = getNextRoute(state, goesToRight(getLastWaypoint()));
+                        next_route = getNextRoute(state, goesToRight(last_waypoint));
                     }
                 }
 
@@ -149,10 +166,27 @@ class Robot
                 }
 
                 print();
-            }
-            else if (waypoint != getLastWaypoint())
+            } 
+            else if (last_waypoint == START_WAYPOINT) // Wrong direction after semaphore
             {
-                cout << "WRONG WAYPOINT: Waypoint should have been " << boost::lexical_cast<string>(next_waypoint) << " but was " << boost::lexical_cast<string>(waypoint) << endl;
+                // Check time of last semaphore penalty
+                if(last_penalty == SEMAPHORE) {
+                    double current = ros::Time::now().toSec();
+
+                    // After 2 seconds it's okay to penalty again
+                    if(current - last_penalty_time > 2) {
+                        addDrivingPenalty(25);
+                        last_penalty = SEMAPHORE;
+                    }
+
+                } else {
+                    addDrivingPenalty(25);
+                    last_penalty = SEMAPHORE;
+                }         
+            }
+            else if (waypoint != last_waypoint)
+            {
+                cout << "WRONG WAYPOINT: Waypoint should have been " << lexical_cast<string>(next_waypoint) << " but was " << lexical_cast<string>(waypoint) << endl;
             }
         }
     };
@@ -161,48 +195,48 @@ class Robot
         RobotCollision left_wheel = RobotCollision("left_wheel", false);
         RobotCollision front_wheel = RobotCollision("chassis", false);
 
-        insideCollisions.push_back(right_wheel);
-        insideCollisions.push_back(left_wheel);
-        insideCollisions.push_back(front_wheel);
+        inside_collisions.push_back(right_wheel);
+        inside_collisions.push_back(left_wheel);
+        inside_collisions.push_back(front_wheel);
         
-        outsideCollisions.push_back(right_wheel);
-        outsideCollisions.push_back(left_wheel);
-        outsideCollisions.push_back(front_wheel);
+        outside_collisions.push_back(right_wheel);
+        outside_collisions.push_back(left_wheel);
+        outside_collisions.push_back(front_wheel);
 
-        boundariesCollisions.push_back(right_wheel);
-        boundariesCollisions.push_back(left_wheel);
-        boundariesCollisions.push_back(front_wheel);
+        boundaries_collisions.push_back(right_wheel);
+        boundaries_collisions.push_back(left_wheel);
+        boundaries_collisions.push_back(front_wheel);
     };
     bool setCollisionStateBySensor(string component, Sensor sensor, bool state) {
         switch (sensor)
         {
         case TRACK_OUTSIDE:
             
-            for (int i = 0; i < outsideCollisions.size(); i++)
+            for (int i = 0; i < outside_collisions.size(); i++)
             {
-                if (component.compare(outsideCollisions[i].component) == 0)
+                if (component.compare(outside_collisions[i].component) == 0)
                 {
-                    outsideCollisions[i].setCollisionState(state);
+                    outside_collisions[i].setCollisionState(state);
                     return true;
                 }
             }
             break;
         case TRACK_INSIDE:
-            for (int i = 0; i < insideCollisions.size(); i++)
+            for (int i = 0; i < inside_collisions.size(); i++)
             {
-                if (component.compare(insideCollisions[i].component) == 0)
+                if (component.compare(inside_collisions[i].component) == 0)
                 {
-                    insideCollisions[i].setCollisionState(state);
+                    inside_collisions[i].setCollisionState(state);
                     return true;
                 }
             }
             break;
         case TRACK_BOUNDS:
-            for (int i = 0; i < boundariesCollisions.size(); i++)
+            for (int i = 0; i < boundaries_collisions.size(); i++)
             {
-                if (component.compare(boundariesCollisions[i].component) == 0)
+                if (component.compare(boundaries_collisions[i].component) == 0)
                 {
-                    boundariesCollisions[i].setCollisionState(state);
+                    boundaries_collisions[i].setCollisionState(state);
                     return true;
                 }
             }
@@ -212,9 +246,9 @@ class Robot
         return false;
     }
     bool isInsideTrack() {
-        for (int i = 0; i < insideCollisions.size(); i++)
+        for (int i = 0; i < inside_collisions.size(); i++)
         {
-            if (insideCollisions[i].isColliding == false)
+            if (inside_collisions[i].isColliding == false)
             {
                 return false;
             }
@@ -223,9 +257,9 @@ class Robot
         return true;
     }
     bool isOutsideTrack() {
-        for (int i = 0; i < outsideCollisions.size(); i++)
+        for (int i = 0; i < outside_collisions.size(); i++)
         {
-            if (outsideCollisions[i].isColliding == false)
+            if (outside_collisions[i].isColliding == false)
             {
                 return false;
             }
@@ -236,7 +270,7 @@ class Robot
     void print(void)
     {
         string p = "NAME: " + name + "\n";
-        p += "LAPS: " + boost::lexical_cast<string>(getCurrentLap(route)) + boost::lexical_cast<string>("/") + boost::lexical_cast<string>(LAPS) + "\n";
+        p += "LAPS: " + lexical_cast<string>(getCurrentLap(route)) + lexical_cast<string>("/") + lexical_cast<string>(LAPS) + "\n";
         if (race_state == FINISHED)
         {
             p += "STATUS: " + getRaceStateName(race_state) + "\n";
@@ -246,8 +280,8 @@ class Robot
             double mins = (int)(secs / 60);
             secs = (int)(secs - mins * 60);
 
-            p += "ELAPSED TIME: " + boost::lexical_cast<string>(mins) + ":" + boost::lexical_cast<string>(secs) + "." +
-                 boost::lexical_cast<string>(mils) + "\n";
+            p += "ELAPSED TIME: " + lexical_cast<string>(mins) + ":" + lexical_cast<string>(secs) + "." +
+                 lexical_cast<string>(mils) + "\n";
         }
         else
         {
@@ -260,8 +294,8 @@ class Robot
             double mins = (int)(secs / 60);
             secs = (int)(secs - mins * 60);
 
-            p += "ELAPSED TIME: " + boost::lexical_cast<string>(mins) + ":" + boost::lexical_cast<string>(secs) + "." +
-                 boost::lexical_cast<string>(mils) + "\n";
+            p += "ELAPSED TIME: " + lexical_cast<string>(mins) + ":" + lexical_cast<string>(secs) + "." +
+                 lexical_cast<string>(mils) + "\n";
         }
 
         p += "ROUTE: ";
@@ -269,9 +303,9 @@ class Robot
         for (int i = 0; i < route.size(); i++)
         {
             if (i == 0)
-                p += boost::lexical_cast<string>(route[i]);
+                p += lexical_cast<string>(route[i]);
             else
-                p += " - " + boost::lexical_cast<string>(route[i]);
+                p += " - " + lexical_cast<string>(route[i]);
         }
 
         p += "\nNEXT ROUTE: ";
@@ -279,14 +313,13 @@ class Robot
         for (int i = 0; i < next_route.size(); i++)
         {
             if (i == 0)
-                p += boost::lexical_cast<string>(next_route[i]);
+                p += lexical_cast<string>(next_route[i]);
             else
-                p += " - " + boost::lexical_cast<string>(next_route[i]);
+                p += " - " + lexical_cast<string>(next_route[i]);
         }
 
-        p += "\nSCORE: " + boost::lexical_cast<string>(score);
-        p += "\nPENALTIES: " + boost::lexical_cast<string>(penalties);
-        p += "\nSEMAPHORE: " + getSemaphoreName(last_semaphore) + "\n\n";
+        // p += "\nSCORE: " + lexical_cast<string>(score); Better to print the score in the final
+        p += "\nPENALTIES: " + lexical_cast<string>(driving_penalties);
 
         cout << p;
     };
