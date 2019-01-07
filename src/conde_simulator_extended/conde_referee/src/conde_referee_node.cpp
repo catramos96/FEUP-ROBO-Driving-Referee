@@ -56,24 +56,27 @@ void BayParkingBoundsCallback(const std_msgs::String::ConstPtr &msg)
     if (race_state == DISQUALIFIED || race_state == PARALLEL_PARKING)
       return;
 
-    if (r->getLastPenalty() == PARKING)
+    if (r->isParking())
     {
-      double current = ros::Time::now().toSec();
+      if (r->getLastPenalty() == PARKING)
+      {
+        double current = ros::Time::now().toSec();
 
-      // After half second it's okay to penalty again
-      // To handle a lot of messages sent by the sensor
-      if (current - r->getLastPenaltyTime() > 0.5)
+        // After 1 second it's okay to penalty again
+        // To handle a lot of messages sent by the sensor
+        if (current - r->getLastPenaltyTime() > 1)
+        {
+          r->addParkingPenalty(10);
+          r->setLastPenalty(PARKING);
+          cout << "\n\nParking Penalty for robot: " << r->name << endl;
+        }
+      }
+      else
       {
         r->addParkingPenalty(10);
         r->setLastPenalty(PARKING);
-        cout << "Parking Penalty for robot: " << r->name << endl;
+        cout << "\n\nParking Penalty for robot: " << r->name << endl;
       }
-    }
-    else
-    {
-      r->addParkingPenalty(10);
-      r->setLastPenalty(PARKING);
-      cout << "Parking Penalty for robot: " << r->name << endl;
     }
   }
 }
@@ -187,6 +190,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
         if (current - r->getParkingTime() > 5)
         {
           r->setParkingScore(0); // Failed to parking
+          r->endParking();
           r->setRaceState(FINISHED);
           r->print();
         }
@@ -199,7 +203,8 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
         r->addDrivingPenalty(20);
         r->setRaceState(DISQUALIFIED);
         r->setLastPenalty(TRACK_OUTSIDE);
-        cout << r->name << " DISQUALIFIED!" << endl;
+        cout << "\n\n"
+             << r->name << " DISQUALIFIED!" << endl;
       }
       break;
     case TRACK_INSIDE:
@@ -217,6 +222,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
         if (current - r->getParkingTime() > 5)
         {
           r->setParkingScore(0); // Failed to parking
+          r->endParking();
           r->setRaceState(FINISHED);
           r->print();
         }
@@ -237,7 +243,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
             r->addDrivingPenalty(10);
             r->setBoundaryCollision(false);
             r->setLastPenalty(TRACK_BOUNDS);
-            cout << "Boundaries Penalty for robot: " << r->name << endl;
+            cout << "\n\nBoundaries Penalty for robot: " << r->name << endl;
           }
         }
         else
@@ -245,7 +251,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->addDrivingPenalty(10);
           r->setBoundaryCollision(false);
           r->setLastPenalty(TRACK_BOUNDS);
-          cout << "Boundaries Penalty for robot: " << r->name << endl;
+          cout << "\n\nBoundaries Penalty for robot: " << r->name << endl;
         }
       }
 
@@ -269,13 +275,13 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           {
             r->addDrivingPenalty(10);
             r->setLastPenalty(TRACK_BOUNDS);
-            cout << "Parking Penalty for robot: " << r->name << endl;
+            cout << "\n\nParking Penalty for robot: " << r->name << endl;
           }
           else
           {
             r->addDrivingPenalty(10);
             r->setLastPenalty(TRACK_BOUNDS);
-            cout << "Parking Penalty for robot: " << r->name << endl;
+            cout << "\n\nParking Penalty for robot: " << r->name << endl;
           }
         }
 

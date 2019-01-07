@@ -173,7 +173,6 @@ string buildMessage(Sensor s, string collision1, string collision2)
     case SEMAPHORE:
     case PARKING:
     {
-        string sensorType = to_upper_copy<string>(sensorName);
         message = getSensorName(s) + SEPARATOR + robotName;
         break;
     }

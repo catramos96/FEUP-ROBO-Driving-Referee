@@ -63,8 +63,8 @@ class Robot
         setName(name);
         next_route.push_back(START_WAYPOINT);
 
-        // TO DELETE , IT'S FOR TEST
-        /*setRaceState(BAY_PARKING);
+        /* TO DELETE , IT'S FOR TEST
+        setRaceState(BAY_PARKING);
         parking_started = false;
         route.push_back(6);
         next_route.push_back(9);*/
@@ -97,6 +97,7 @@ class Robot
         parking_started = true;
         parking_time = ros::Time::now().toSec();
     };
+    void endParking() { parking_started = false; };
     void setRaceState(RaceState state) { race_state = state; };
     void setLastPenalty(Sensor sensor) { last_penalty = sensor; };
     void setParkingScore(double score) { parking_score = score; }
@@ -145,6 +146,7 @@ class Robot
             // Robot has 5 seconds to finish the parking
             if (current - parking_time > 5)
             {
+                endParking();
                 calculateParkingScore();
                 setRaceState(FINISHED);
                 print();
@@ -222,7 +224,7 @@ class Robot
             {
                 setInsideParking(true);
                 startParking();
-                cout << "Starting parking..." << endl;
+                //cout << "Starting parking..." << endl;
             }
 
             //finish route
@@ -344,7 +346,7 @@ class Robot
     };
     void print(void)
     {
-        string p = "NAME: " + name + "\n";
+        string p = "\n\nNAME: " + name + "\n";
         p += "LAPS: " + lexical_cast<string>(getCurrentLap(route)) + lexical_cast<string>("/") + lexical_cast<string>(LAPS) + "\n";
         if (race_state == FINISHED)
         {
@@ -399,7 +401,7 @@ class Robot
         {
             p += "\nPARKING PENALTIES: " + lexical_cast<string>(parking_penalties);
             p += "\n\nDRIVING SCORE: " + lexical_cast<string>(driving_score);
-            p += "\n\nPARKING SCORE: " + lexical_cast<string>(parking_score);
+            p += "\nPARKING SCORE: " + lexical_cast<string>(parking_score);
         }
 
         cout << p;
