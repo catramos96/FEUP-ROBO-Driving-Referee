@@ -14,10 +14,11 @@
 using namespace std;
 using namespace boost;
 
-class RobotCollision {
-    public:
-        string component;
-        bool isColliding;
+class RobotCollision
+{
+  public:
+    string component;
+    bool isColliding;
 
     RobotCollision(string component, bool colliding)
     {
@@ -36,16 +37,19 @@ class Robot
     double start_time;
     double end_time;
     double last_penalty_time;
+    double parking_time;
     vector<int> route;
-    vector<int> next_route; //route to be performed
-    vector<RobotCollision> inside_collisions; // info on wheter the robot is inside the track
+    vector<int> next_route;                       //route to be performed
+    vector<RobotCollision> inside_collisions;     // info on wheter the robot is inside the track
     vector<RobotCollision> boundaries_collisions; // info on wheter the robot is touching the boundaries
-    vector<RobotCollision> outside_collisions; // info on wheter the robot is outside the track
+    vector<RobotCollision> outside_collisions;    // info on wheter the robot is outside the track
     bool had_boundary_collision;
     double driving_score;
     double parking_score;
     int driving_penalties;
     int parking_penalties;
+    bool is_inside_parking;
+    bool parking_started;
     Sensor last_penalty;
     RaceState race_state;
 
@@ -58,21 +62,50 @@ class Robot
         parking_penalties = 0;
         setName(name);
         next_route.push_back(START_WAYPOINT);
-        last_penalty_time = -1;
+
+        // TO DELETE , IT'S FOR TEST
+        /*setRaceState(BAY_PARKING);
+        parking_started = false;
+        route.push_back(6);
+        next_route.push_back(9);*/
+
+        parking_started = false;
         setBoundaryCollision(false);
         initializeCollisionVectors();
     };
     void setName(string new_name) { name = new_name; };
-    void startRace() { start_time = ros::Time::now().toSec(); race_state = ONGOING; };
-    void endRace() { end_time = ros::Time::now().toSec(); };
-    void addDrivingPenalty(int new_penalty) { driving_penalties += new_penalty; last_penalty_time = ros::Time::now().toSec(); };
+    void startRace()
+    {
+        start_time = ros::Time::now().toSec();
+        race_state = ONGOING;
+    };
+    void endDrivingChallenge() { end_time = ros::Time::now().toSec(); };
+    void addDrivingPenalty(int new_penalty)
+    {
+        driving_penalties += new_penalty;
+        last_penalty_time = ros::Time::now().toSec();
+    };
+    void addParkingPenalty(int new_penalty)
+    {
+        parking_penalties += new_penalty;
+        last_penalty_time = ros::Time::now().toSec();
+    };
     void setBoundaryCollision(bool state) { had_boundary_collision = state; };
+    void setInsideParking(bool state) { is_inside_parking = state; };
+    void startParking()
+    {
+        parking_started = true;
+        parking_time = ros::Time::now().toSec();
+    };
     void setRaceState(RaceState state) { race_state = state; };
     void setLastPenalty(Sensor sensor) { last_penalty = sensor; };
+    void setParkingScore(double score) { parking_score = score; }
     RaceState getRaceState() { return race_state; };
     Sensor getLastPenalty() { return last_penalty; };
     double getLastPenaltyTime() { return last_penalty_time; };
+    double getParkingTime() { return parking_time; };
     bool getHadBoundaryCollision() { return had_boundary_collision; };
+    bool isParking() { return parking_started; };
     int getLastWaypoint()
     {
         if (route.size() != 0)
@@ -86,111 +119,150 @@ class Robot
             return -1;
         else
             return (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
-    }
-    void calculateDrivingScore() { // Driving with signs
+    };
+    void calculateDrivingScore()
+    { // Driving with signs
         int half_laps = LAPS * 2;
         driving_score = half_laps * DRIVING_SCORE_REFERENCE + (half_laps * TIME_REFERENCE - end_time) - driving_penalties;
     };
-    void calculateParkingScore() { // Parallel or Bay parking without obstacles
+    void calculateParkingScore()
+    { // Parallel or Bay parking without obstacles
         parking_score = PARKING_SCORE_REFERENCE - parking_penalties;
     };
     void consumeRouteWaypoint(int waypoint, SemaphoreState state)
     {
-        int last_waypoint = getLastWaypoint();
-
-        // No need to double check - Several messages are received during the time the robot passes through the sensor
-        if(waypoint == last_waypoint)
+        if (race_state == DISQUALIFIED || race_state == FINISHED)
             return;
 
-        if (!hasFinishRace(route))
+        // Keeps refreshing flag in case robot had left the parking
+        // No more waypoints, referee is just waiting for the robot to park
+        if (isParkingWaypoint(waypoint) && isParking())
         {
-            int next_waypoint = START_WAYPOINT;
+            setInsideParking(true);
 
-            if (next_route.size() != 0)
-                next_waypoint = next_route[0];
-            else
+            double current = ros::Time::now().toSec();
+
+            // Robot has 5 seconds to finish the parking
+            if (current - parking_time > 5)
             {
-                next_route.clear();
-                next_route.push_back(START_WAYPOINT);
-                next_waypoint = START_WAYPOINT;
+                calculateParkingScore();
+                setRaceState(FINISHED);
+                print();
             }
+            return;
+        }
 
-            //corect path
-            if (waypoint == next_waypoint)
+        int last_waypoint = getLastWaypoint();
+
+        // No need to double check unless is a parking waypoint - Several messages are received during the time the robot passes through the sensor
+        if (waypoint == last_waypoint)
+            return;
+
+        int next_waypoint = START_WAYPOINT;
+
+        if (next_route.size() != 0)
+            next_waypoint = next_route[0];
+        else
+        {
+            next_route.clear();
+            next_route.push_back(START_WAYPOINT);
+            next_waypoint = START_WAYPOINT;
+        }
+
+        //correct path
+        if (waypoint == next_waypoint)
+        {
+            //near semaphore
+            if (waypoint == START_WAYPOINT)
             {
-                //near semaphore
-                if (waypoint == START_WAYPOINT)
+                //check if the robot already started the race
+                if (route.size() == 0)
+                    startRace();
+
+                if (state == STOP)
                 {
-                    //check if the robot already started the race
-                    if (route.size() == 0)
-                        startRace();
-
-                    if (state == STOP)
+                    // Check time of last semaphore penalty
+                    if (last_penalty == SEMAPHORE)
                     {
-                        // Check time of last semaphore penalty
-                        if(last_penalty == SEMAPHORE) {
-                            double current = ros::Time::now().toSec();
+                        double current = ros::Time::now().toSec();
 
-                            // After 2 seconds it's okay to penalty again
-                            if(current - last_penalty_time > 2) {
-                                addDrivingPenalty(60);
-                                last_penalty = SEMAPHORE;
-                            }
-
-                        } else {
+                        // After 2 seconds it's okay to penalty again
+                        if (current - last_penalty_time > 2)
+                        {
                             addDrivingPenalty(60);
                             last_penalty = SEMAPHORE;
-                        }                        
+                        }
                     }
                     else
                     {
-                        next_route = getNextRoute(state, goesToRight(last_waypoint));
-                    }
-                }
-
-                //add waypoint to route
-                route.push_back(next_waypoint);
-
-                //remove waypoint from next route if not removed
-                //when route was updated (near semaphore)
-                if (next_route[0] == next_waypoint)
-                    next_route.erase(next_route.begin());
-
-                //finish route
-                if (hasFinishRace(route))
-                {
-                    endRace();
-                    if(race_state != DISQUALIFIED)
-                        race_state = FINISHED;
-                    next_route.clear();
-                }
-
-                print();
-            } 
-            else if (last_waypoint == START_WAYPOINT) // Wrong direction after semaphore
-            {
-                // Check time of last semaphore penalty
-                if(last_penalty == SEMAPHORE) {
-                    double current = ros::Time::now().toSec();
-
-                    // After 2 seconds it's okay to penalty again
-                    if(current - last_penalty_time > 2) {
-                        addDrivingPenalty(25);
+                        addDrivingPenalty(60);
                         last_penalty = SEMAPHORE;
                     }
+                }
 
-                } else {
+                if (state == PARK)
+                {
+                    endDrivingChallenge();
+                    calculateDrivingScore();
+                    setRaceState(PARALLEL_PARKING);
+                }
+
+                next_route = getNextRoute(state, goesToRight(last_waypoint));
+            }
+
+            //add waypoint to route
+            route.push_back(next_waypoint);
+
+            //remove waypoint from next route if not removed
+            //when route was updated (near semaphore)
+            if (next_route[0] == next_waypoint)
+                next_route.erase(next_route.begin());
+
+            if (isParkingWaypoint(waypoint) && !isParking())
+            {
+                setInsideParking(true);
+                startParking();
+                cout << "Starting parking..." << endl;
+            }
+
+            //finish route
+            if (hasFinishRace(route))
+            {
+                // Bay parking challenge starts after driving challenge is done
+                if (race_state != PARALLEL_PARKING)
+                {
+                    endDrivingChallenge();
+                    calculateDrivingScore();
+                    setRaceState(BAY_PARKING);
+                    next_route.push_back(9);
+                }
+            }
+
+            print();
+        }
+        else if (last_waypoint == START_WAYPOINT) // Wrong direction after semaphore
+        {
+            // Check time of last semaphore penalty
+            if (last_penalty == SEMAPHORE)
+            {
+                double current = ros::Time::now().toSec();
+
+                // After 2 seconds it's okay to penalty again
+                if (current - last_penalty_time > 2)
+                {
                     addDrivingPenalty(25);
                     last_penalty = SEMAPHORE;
-                }         
+                }
             }
-            else if (waypoint != last_waypoint)
+            else
             {
-                cout << "WRONG WAYPOINT: Waypoint should have been " << lexical_cast<string>(next_waypoint) << " but was " << lexical_cast<string>(waypoint) << endl;
+                addDrivingPenalty(25);
+                last_penalty = SEMAPHORE;
             }
         }
     };
-    void initializeCollisionVectors() { 
+    void initializeCollisionVectors()
+    {
         RobotCollision right_wheel = RobotCollision("right_wheel", false);
         RobotCollision left_wheel = RobotCollision("left_wheel", false);
         RobotCollision front_wheel = RobotCollision("chassis", false);
@@ -198,7 +270,7 @@ class Robot
         inside_collisions.push_back(right_wheel);
         inside_collisions.push_back(left_wheel);
         inside_collisions.push_back(front_wheel);
-        
+
         outside_collisions.push_back(right_wheel);
         outside_collisions.push_back(left_wheel);
         outside_collisions.push_back(front_wheel);
@@ -207,11 +279,12 @@ class Robot
         boundaries_collisions.push_back(left_wheel);
         boundaries_collisions.push_back(front_wheel);
     };
-    bool setCollisionStateBySensor(string component, Sensor sensor, bool state) {
+    bool setCollisionStateBySensor(string component, Sensor sensor, bool state)
+    {
         switch (sensor)
         {
         case TRACK_OUTSIDE:
-            
+
             for (int i = 0; i < outside_collisions.size(); i++)
             {
                 if (component.compare(outside_collisions[i].component) == 0)
@@ -244,8 +317,9 @@ class Robot
         }
 
         return false;
-    }
-    bool isInsideTrack() {
+    };
+    bool isInsideTrack()
+    {
         for (int i = 0; i < inside_collisions.size(); i++)
         {
             if (inside_collisions[i].isColliding == false)
@@ -255,8 +329,9 @@ class Robot
         }
 
         return true;
-    }
-    bool isOutsideTrack() {
+    };
+    bool isOutsideTrack()
+    {
         for (int i = 0; i < outside_collisions.size(); i++)
         {
             if (outside_collisions[i].isColliding == false)
@@ -266,7 +341,7 @@ class Robot
         }
 
         return true;
-    }
+    };
     void print(void)
     {
         string p = "NAME: " + name + "\n";
@@ -318,8 +393,14 @@ class Robot
                 p += " - " + lexical_cast<string>(next_route[i]);
         }
 
-        // p += "\nSCORE: " + lexical_cast<string>(score); Better to print the score in the final
-        p += "\nPENALTIES: " + lexical_cast<string>(driving_penalties);
+        p += "\nDRIVING PENALTIES: " + lexical_cast<string>(driving_penalties);
+
+        if (race_state == FINISHED)
+        {
+            p += "\nPARKING PENALTIES: " + lexical_cast<string>(parking_penalties);
+            p += "\n\nDRIVING SCORE: " + lexical_cast<string>(driving_score);
+            p += "\n\nPARKING SCORE: " + lexical_cast<string>(parking_score);
+        }
 
         cout << p;
     };

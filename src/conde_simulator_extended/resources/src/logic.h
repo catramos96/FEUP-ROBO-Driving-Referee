@@ -14,6 +14,7 @@ using namespace std;
  7    --1---5	    3
  -      1           -
  ---6---1-------2----
+ ---9----------10---- 
 */
 vector<int> getNextRoute(SemaphoreState semaphore, bool to_right)
 {
@@ -62,7 +63,8 @@ vector<int> getNextRoute(SemaphoreState semaphore, bool to_right)
     }
     case PARK:
     {
-        //TODO
+        int aux[] = {10};
+        route.insert(route.end(), aux, aux+(sizeof(aux)/sizeof(aux[0])));
         break;
     }
     }
@@ -95,6 +97,10 @@ bool hasFinishRace(vector<int> route)
 int getCurrentLap(vector<int> route)
 {
     return floor(route.size() / (9 * LAPS + 1));
+}
+
+bool isParkingWaypoint(int waypoint) {
+    return (waypoint == 9 || waypoint == 10);
 }
 
 #endif

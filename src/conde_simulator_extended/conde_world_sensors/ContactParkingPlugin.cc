@@ -46,10 +46,9 @@ void ContactParkingPlugin::OnUpdate()
   contacts = this->parentSensor->Contacts();
   for (unsigned int i = 0; i < contacts.contact_size(); ++i)
   {
-    std::cout << contacts.contact(i).collision1() + " " + contacts.contact(i).collision2();
-    //std_msgs::String msg;
-    //msg.data = contacts.contact(i).collision1() + " " contacts.contact(i).collision2();
-    //buildMessage(PARKING, contacts.contact(i).collision1(), contacts.contact(i).collision2());
-    //this->pub.publish(msg);
+    std_msgs::String msg;
+    msg.data = contacts.contact(i).collision1() + " " + contacts.contact(i).collision2();
+    buildMessage(PARKING, contacts.contact(i).collision1(), contacts.contact(i).collision2());
+    this->pub.publish(msg);
   }
 }

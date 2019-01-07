@@ -15,11 +15,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 # Build our plugin
 add_library(contact_borders SHARED ContactPlugin.cc)
-add_library(contact_semaphore SHARED ContactSemaphorePlugin.cc)
 add_library(contact_waypoints SHARED ContactWaypointsPlugin.cc)
 add_library(contact_parking SHARED ContactParkingPlugin.cc)
 target_link_libraries(contact_borders ${GAZEBO_LIBRARIES})
-target_link_libraries(contact_semaphore ${GAZEBO_LIBRARIES})
 target_link_libraries(contact_waypoints ${GAZEBO_LIBRARIES})
 target_link_libraries(contact_parking ${GAZEBO_LIBRARIES})
 

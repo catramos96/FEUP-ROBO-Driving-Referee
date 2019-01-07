@@ -10,7 +10,6 @@
 
 #define BOUNDARIES_TOPIC "/boundaries_colisions"
 #define WAYPOINTS_TOPIC "/waypoints"
-#define SEMAPHORE_TOPIC "/semaphore"
 #define SEMAPHORE_STATE_TOPIC "/conde_signalling_panel_state"
 #define PARK_TOPIC "/park"
 
@@ -51,8 +50,10 @@ enum RaceState
 {
     WAITING,
     ONGOING,
+    BAY_PARKING,
+    PARALLEL_PARKING,
     FINISHED,
-    DISQUALIFIED,
+    DISQUALIFIED
 };
 
 string getSemaphoreName(SemaphoreState s)
@@ -101,6 +102,10 @@ string getRaceStateName(RaceState s)
         return "WAITING TO START";
     case ONGOING:
         return "ONGOING";
+    case PARALLEL_PARKING:
+        return "PARALLEL_PARKING";
+    case BAY_PARKING:
+        return "BAY_PARKING";
     case FINISHED:
         return "FINISHED";
     case DISQUALIFIED:
@@ -168,6 +173,7 @@ string buildMessage(Sensor s, string collision1, string collision2)
     case SEMAPHORE:
     case PARKING:
     {
+        string sensorType = to_upper_copy<string>(sensorName);
         message = getSensorName(s) + SEPARATOR + robotName;
         break;
     }

@@ -13,7 +13,8 @@ using namespace std;
 vector<Robot *> robots;
 SemaphoreState semaphoreState = UP;
 
-Robot* getRobotByName(string name) {
+Robot *getRobotByName(string name)
+{
   for (int i = 0; i < robots.size(); i++)
   {
     if (name.compare(robots[i]->name) == 0)
@@ -25,10 +26,56 @@ Robot* getRobotByName(string name) {
   return NULL;
 }
 
-void GeneralizedCallback(const std_msgs::String::ConstPtr &msg)
+void BayParkingBoundsCallback(const std_msgs::String::ConstPtr &msg)
 {
-  //ROS_INFO("I heard: [%s]", msg->data.c_str());
-  cout << msg->data.c_str() << endl;
+  string m = msg->data.c_str();
+
+  vector<string> parts = vector<string>();
+  split_regex(parts, m, regex(SEPARATOR));
+
+  // check if image is of correct type
+  if (parts[0].compare(getSensorName(PARKING)))
+    return;
+  else
+  {
+    // get message information
+    string robotName = parts[1];
+
+    // check if robot exists
+    Robot *r = getRobotByName(robotName);
+
+    // new robot
+    if (r == NULL)
+    {
+      r = new Robot(robotName);
+      robots.push_back(r);
+    }
+
+    // If the robot has been disqualified there is no need to check collisions
+    RaceState race_state = r->getRaceState();
+    if (race_state == DISQUALIFIED || race_state == PARALLEL_PARKING)
+      return;
+
+    if (r->getLastPenalty() == PARKING)
+    {
+      double current = ros::Time::now().toSec();
+
+      // After half second it's okay to penalty again
+      // To handle a lot of messages sent by the sensor
+      if (current - r->getLastPenaltyTime() > 0.5)
+      {
+        r->addParkingPenalty(10);
+        r->setLastPenalty(PARKING);
+        cout << "Parking Penalty for robot: " << r->name << endl;
+      }
+    }
+    else
+    {
+      r->addParkingPenalty(10);
+      r->setLastPenalty(PARKING);
+      cout << "Parking Penalty for robot: " << r->name << endl;
+    }
+  }
 }
 
 void SemaphoreStateCallback(const std_msgs::String::ConstPtr &msg)
@@ -75,24 +122,13 @@ void WaypointsCallback(const std_msgs::String::ConstPtr &msg)
     string name = parts[1];
     int waypoint = atoi(parts[2].c_str());
 
-    Robot *r = new Robot(name);
-    bool found = false;
-
     // check if robot exists
-    for (int i = 0; i < robots.size(); i++)
-    {
-      if (name.compare(robots[i]->name) == 0)
-      {
-        r = robots[i];
-        found = true;
-        break;
-      }
-    }
+    Robot *r = getRobotByName(name);
 
     // new robot
-    if (found == false)
+    if (r == NULL)
     {
-      r->setName(name);
+      r = new Robot(name);
       robots.push_back(r);
     }
 
@@ -122,63 +158,129 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
     Robot *r = getRobotByName(robotName);
 
     // new robot
-    if(r == NULL) {
+    if (r == NULL)
+    {
       r = new Robot(robotName);
       robots.push_back(r);
     }
 
+    RaceState race_state = r->getRaceState();
+
     // If the robot has been disqualified there is no need to check collisions
-    if(r->getRaceState() == DISQUALIFIED)
+    if (race_state == DISQUALIFIED)
       return;
 
     switch (sensorType)
     {
-      case TRACK_OUTSIDE:
-          r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, true);
-          r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, false);
-          r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
+    case TRACK_OUTSIDE:
+      r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, true);
+      r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, false);
+      r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
-          if(r->isOutsideTrack()) {
-            r->addDrivingPenalty(20);
-            r->setRaceState(DISQUALIFIED);
-            r->setLastPenalty(TRACK_OUTSIDE);
-            cout << r->name << " DISQUALIFIED!" << endl;
+      // Flag to know if robot is inside the parking space
+      if (r->isParking() && r->isOutsideTrack())
+      {
+        r->setInsideParking(false);
+        double current = ros::Time::now().toSec();
+
+        // Robot has 5 seconds to finish the parking
+        if (current - r->getParkingTime() > 5)
+        {
+          r->setParkingScore(0); // Failed to parking
+          r->setRaceState(FINISHED);
+          r->print();
+        }
+        return;
+      }
+
+      // Outside of the track penalty
+      if (race_state == ONGOING && r->isOutsideTrack())
+      {
+        r->addDrivingPenalty(20);
+        r->setRaceState(DISQUALIFIED);
+        r->setLastPenalty(TRACK_OUTSIDE);
+        cout << r->name << " DISQUALIFIED!" << endl;
+      }
+      break;
+    case TRACK_INSIDE:
+      r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, true);
+      r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, false);
+      r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
+
+      // Flag to know if robot is inside the parking space
+      if (r->isParking() && r->isInsideTrack())
+      {
+        r->setInsideParking(false);
+        double current = ros::Time::now().toSec();
+
+        // Robot has 5 seconds to finish the parking
+        if (current - r->getParkingTime() > 5)
+        {
+          r->setParkingScore(0); // Failed to parking
+          r->setRaceState(FINISHED);
+          r->print();
+        }
+        return;
+      }
+
+      // Penalty added when robot is back to the track
+      if (race_state == ONGOING && r->isInsideTrack() && r->getHadBoundaryCollision())
+      {
+        if (r->getLastPenalty() == TRACK_BOUNDS)
+        {
+          double current = ros::Time::now().toSec();
+
+          // After 2 seconds it's okay to penalty again
+          // To handle a lot of messages sent by the sensor
+          if (current - r->getLastPenaltyTime() > 2)
+          {
+            r->addDrivingPenalty(10);
+            r->setBoundaryCollision(false);
+            r->setLastPenalty(TRACK_BOUNDS);
+            cout << "Boundaries Penalty for robot: " << r->name << endl;
           }
-          break;
-      case TRACK_INSIDE:
-          r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, true);
-          r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, false);
-          r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
+        }
+        else
+        {
+          r->addDrivingPenalty(10);
+          r->setBoundaryCollision(false);
+          r->setLastPenalty(TRACK_BOUNDS);
+          cout << "Boundaries Penalty for robot: " << r->name << endl;
+        }
+      }
 
-          // Penalty added when robot is back to the track
-          if(r->isInsideTrack() && r->getHadBoundaryCollision()) {
-            if(r->getLastPenalty() == TRACK_BOUNDS) {
-              double current = ros::Time::now().toSec();
+      break;
+    case TRACK_BOUNDS:
+      r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, true);
+      r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, false);
+      r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, false);
+      r->setBoundaryCollision(true);
 
-              // After 2 seconds it's okay to penalty again
-              // To handle a lot of messages sent by the sensor
-              if(current - r->getLastPenaltyTime() > 2) {
-                r->addDrivingPenalty(10);
-                r->setBoundaryCollision(false);
-                r->setLastPenalty(TRACK_BOUNDS);
-                cout << "PENALTY for robot: " << r->name << endl;
-              }
-            } else {
-              r->addDrivingPenalty(10);
-              r->setBoundaryCollision(false);
-              r->setLastPenalty(TRACK_BOUNDS);
-              cout << "PENALTY for robot: " << r->name << endl;
-            }
+      // For parallel parking - Parking limit is the track bounds
+      if (r->isParking())
+      {
+        if (r->getLastPenalty() == TRACK_BOUNDS)
+        {
+          double current = ros::Time::now().toSec();
+
+          // After 1 second it's okay to penalty again
+          // To handle a lot of messages sent by the sensor
+          if (current - r->getLastPenaltyTime() > 1)
+          {
+            r->addDrivingPenalty(10);
+            r->setLastPenalty(TRACK_BOUNDS);
+            cout << "Parking Penalty for robot: " << r->name << endl;
           }
+          else
+          {
+            r->addDrivingPenalty(10);
+            r->setLastPenalty(TRACK_BOUNDS);
+            cout << "Parking Penalty for robot: " << r->name << endl;
+          }
+        }
 
-          break;
-      case TRACK_BOUNDS:
-          r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, true);
-          r->setCollisionStateBySensor(robotComponent, TRACK_OUTSIDE, false);
-          r->setCollisionStateBySensor(robotComponent, TRACK_INSIDE, false);
-          r->setBoundaryCollision(true);
-
-          break;
+        break;
+      }
     }
   }
 }
@@ -194,9 +296,8 @@ int main(int argc, char **argv)
 
   ros::Subscriber sub1 = n1.subscribe(BOUNDARIES_TOPIC, 1, BoundariesCallback);
   ros::Subscriber sub2 = n2.subscribe(WAYPOINTS_TOPIC, 1, WaypointsCallback);
-  //ros::Subscriber sub4 = n4.subscribe(SEMAPHORE_TOPIC, 1, SemaphoreCallback);
   ros::Subscriber sub3 = n3.subscribe(SEMAPHORE_STATE_TOPIC, 1, SemaphoreStateCallback);
-  ros::Subscriber sub4 = n4.subscribe(PARK_TOPIC, 1, GeneralizedCallback);
+  ros::Subscriber sub4 = n4.subscribe(PARK_TOPIC, 1, BayParkingBoundsCallback);
 
   //ROS_INFO("Listening on /conde_referee_robot_time");
 
