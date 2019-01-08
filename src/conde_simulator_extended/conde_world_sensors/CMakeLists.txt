@@ -13,6 +13,15 @@ include_directories(${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE
 link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
+# Utils header file
+include_directories(
+  ${RESOURCES_DIRECTORY}
+)
+
+set(RESOURCES 
+  ${RESOURCES_DIRECTORY}/utils.cpp ${RESOURCES_DIRECTORY}/utils.h
+)
+
 # Build our plugin
 add_library(contact_borders SHARED ContactPlugin.cc)
 add_library(contact_waypoints SHARED ContactWaypointsPlugin.cc)

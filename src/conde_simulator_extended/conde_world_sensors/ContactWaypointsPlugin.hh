@@ -7,7 +7,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/sensors/sensors.hh>
 
-#include "../resources/src/utils.h"
+#include "utils.h"
 
 namespace gazebo
 {
