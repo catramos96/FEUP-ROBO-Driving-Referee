@@ -240,8 +240,9 @@ void Robot::consumeRouteWaypoint(int waypoint, SemaphoreState state)
                 calculateDrivingScore();
                 setRaceState(PARALLEL_PARKING);
             }
-
-            next_route = getNextRoute(state, goesToRight(last_waypoint));
+            
+            if(!hasFinishRace(route))
+                next_route = getNextRoute(state, goesToRight(last_waypoint));
         }
 
         //add waypoint to route
@@ -267,6 +268,7 @@ void Robot::consumeRouteWaypoint(int waypoint, SemaphoreState state)
                 endDrivingChallenge();
                 calculateDrivingScore();
                 setRaceState(BAY_PARKING);
+                next_route.clear();
                 next_route.push_back(9);
             }
         }
