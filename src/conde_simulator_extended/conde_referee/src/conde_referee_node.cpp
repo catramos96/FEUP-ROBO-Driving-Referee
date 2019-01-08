@@ -64,7 +64,7 @@ void BayParkingBoundsCallback(const std_msgs::String::ConstPtr &msg)
 
         // After 1 second it's okay to penalty again
         // To handle a lot of messages sent by the sensor
-        if (current - r->getLastPenaltyTime() > 1)
+        if (current - r->getLastPenaltyTime() >= PARKING_PENALTY_TIME_INTERVAL)
         {
           r->addParkingPenalty(10);
           r->setLastPenalty(PARKING);
@@ -187,9 +187,11 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
         double current = ros::Time::now().toSec();
 
         // Robot has 5 seconds to finish the parking
-        if (current - r->getParkingTime() > 5)
+        if (current - r->getParkingTime() >= PARKING_TIME)
         {
-          r->setParkingScore(0); // Failed to parking
+          cout << "\n\n"
+               << r->name << " failed the parking challenge!" << endl;
+          r->setParkingScore(0);
           r->endParking();
           r->setRaceState(FINISHED);
           r->print();
@@ -213,13 +215,13 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
       r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
       // Flag to know if robot is inside the parking space
-      if (r->isParking() && r->isInsideTrack())
+      /*if (r->isParking() && r->isInsideTrack())
       {
         r->setInsideParking(false);
         double current = ros::Time::now().toSec();
 
         // Robot has 5 seconds to finish the parking
-        if (current - r->getParkingTime() > 5)
+        if (current - r->getParkingTime() >= PARKING_TIME)
         {
           r->setParkingScore(0); // Failed to parking
           r->endParking();
@@ -227,7 +229,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->print();
         }
         return;
-      }
+      }*/
 
       // Penalty added when robot is back to the track
       if (race_state == ONGOING && r->isInsideTrack() && r->getHadBoundaryCollision())
@@ -238,7 +240,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
 
           // After 2 seconds it's okay to penalty again
           // To handle a lot of messages sent by the sensor
-          if (current - r->getLastPenaltyTime() > 2)
+          if (current - r->getLastPenaltyTime() >= BOUNDS_PENALTY_TIME_INTERVAL)
           {
             r->addDrivingPenalty(10);
             r->setBoundaryCollision(false);
@@ -271,22 +273,22 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
 
           // After 1 second it's okay to penalty again
           // To handle a lot of messages sent by the sensor
-          if (current - r->getLastPenaltyTime() > 1)
+          if (current - r->getLastPenaltyTime() >= PARKING_PENALTY_TIME_INTERVAL)
           {
-            r->addDrivingPenalty(10);
-            r->setLastPenalty(TRACK_BOUNDS);
-            cout << "\n\nParking Penalty for robot: " << r->name << endl;
-          }
-          else
-          {
-            r->addDrivingPenalty(10);
+            r->addParkingPenalty(10);
             r->setLastPenalty(TRACK_BOUNDS);
             cout << "\n\nParking Penalty for robot: " << r->name << endl;
           }
         }
-
-        break;
+        else
+        {
+          r->addParkingPenalty(10);
+          r->setLastPenalty(TRACK_BOUNDS);
+          cout << "\n\nParking Penalty for robot: " << r->name << endl;
+        }
       }
+      
+      break;
     }
   }
 }

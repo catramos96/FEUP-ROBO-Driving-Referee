@@ -63,11 +63,11 @@ class Robot
         setName(name);
         next_route.push_back(START_WAYPOINT);
 
-        /* TO DELETE , IT'S FOR TEST
-        setRaceState(BAY_PARKING);
+        /* TO DELETE , IT'S FOR TEST 
+        setRaceState(PARALLEL_PARKING);
         parking_started = false;
         route.push_back(6);
-        next_route.push_back(9);*/
+        next_route.push_back(11);*/
 
         parking_started = false;
         setBoundaryCollision(false);
@@ -189,16 +189,18 @@ class Robot
                         double current = ros::Time::now().toSec();
 
                         // After 2 seconds it's okay to penalty again
-                        if (current - last_penalty_time > 2)
+                        if (current - last_penalty_time >= SEMAPHORE_PENALTY_TIME_INTERVAL)
                         {
                             addDrivingPenalty(60);
                             last_penalty = SEMAPHORE;
+                            cout << "\n\nSemaphore Penalty for robot: " << name << endl;
                         }
                     }
                     else
                     {
                         addDrivingPenalty(60);
                         last_penalty = SEMAPHORE;
+                        cout << "\n\nSemaphore Penalty for robot: " << name << endl;
                     }
                 }
 
@@ -224,7 +226,6 @@ class Robot
             {
                 setInsideParking(true);
                 startParking();
-                //cout << "Starting parking..." << endl;
             }
 
             //finish route
@@ -242,7 +243,7 @@ class Robot
 
             print();
         }
-        else if (last_waypoint == START_WAYPOINT) // Wrong direction after semaphore
+        else if (last_waypoint == START_WAYPOINT && !isParkingWaypoint(waypoint)) // Wrong direction after semaphore (ignores entering parallel parking area)
         {
             // Check time of last semaphore penalty
             if (last_penalty == SEMAPHORE)
@@ -250,16 +251,18 @@ class Robot
                 double current = ros::Time::now().toSec();
 
                 // After 2 seconds it's okay to penalty again
-                if (current - last_penalty_time > 2)
+                if (current - last_penalty_time >= SEMAPHORE_PENALTY_TIME_INTERVAL)
                 {
                     addDrivingPenalty(25);
                     last_penalty = SEMAPHORE;
+                    cout << "\n\nSemaphore Penalty for robot: " << name << endl;
                 }
             }
             else
             {
                 addDrivingPenalty(25);
                 last_penalty = SEMAPHORE;
+                cout << "\n\nSemaphore Penalty for robot: " << name << endl;
             }
         }
     };
@@ -348,7 +351,7 @@ class Robot
     {
         string p = "\n\nNAME: " + name + "\n";
         p += "LAPS: " + lexical_cast<string>(getCurrentLap(route)) + lexical_cast<string>("/") + lexical_cast<string>(LAPS) + "\n";
-        if (race_state == FINISHED)
+        if (race_state == BAY_PARKING || race_state == PARALLEL_PARKING) // It means the driving challenge is over
         {
             p += "STATUS: " + getRaceStateName(race_state) + "\n";
             double secs = (ros::Duration(end_time) - ros::Duration(start_time)).toSec();
@@ -404,7 +407,7 @@ class Robot
             p += "\nPARKING SCORE: " + lexical_cast<string>(parking_score);
         }
 
-        cout << p;
+        cout << p << endl;
     };
 };
 
