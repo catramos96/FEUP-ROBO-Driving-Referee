@@ -11,10 +11,18 @@ catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${RESOURCES_DIRECTORY}
+)
+
+set(RESOURCES 
+  ${RESOURCES_DIRECTORY}/utils.cpp ${RESOURCES_DIRECTORY}/utils.h 
+  ${RESOURCES_DIRECTORY}/logic.cpp ${RESOURCES_DIRECTORY}/logic.h
+  ${RESOURCES_DIRECTORY}/robot.cpp ${RESOURCES_DIRECTORY}/robot.h
+  ${RESOURCES_DIRECTORY}/robot_collision.cpp ${RESOURCES_DIRECTORY}/robot_collision.h
 )
 
 ## Declare a C++ executable
- add_executable(conde_referee_node src/conde_referee_node.cpp)
+ add_executable(conde_referee_node src/conde_referee_node.cpp ${RESOURCES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -24,3 +32,4 @@ include_directories(
  target_link_libraries(conde_referee_node
    ${catkin_LIBRARIES}
  )
+ 

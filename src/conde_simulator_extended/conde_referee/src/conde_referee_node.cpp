@@ -1,7 +1,9 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "../../resources/src/utils.h"
-#include "../../resources/src/robot_resources.h"
+#include "logic.h"
+#include "utils.h"
+#include "robot.h"
+#include "robot_collision.h"
 
 #include <string>
 #include <iostream>
@@ -215,7 +217,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
       r->setCollisionStateBySensor(robotComponent, TRACK_BOUNDS, false);
 
       // Flag to know if robot is inside the parking space
-      /*if (r->isParking() && r->isInsideTrack())
+      if (r->isParking() && r->isInsideTrack())
       {
         r->setInsideParking(false);
         double current = ros::Time::now().toSec();
@@ -229,7 +231,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
           r->print();
         }
         return;
-      }*/
+      }
 
       // Penalty added when robot is back to the track
       if (race_state == ONGOING && r->isInsideTrack() && r->getHadBoundaryCollision())
