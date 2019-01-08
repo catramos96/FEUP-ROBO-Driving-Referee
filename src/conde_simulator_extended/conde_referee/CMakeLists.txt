@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(conde_referee)
 
+set(RESOURCES_DIRECTORY ../resources/src)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
