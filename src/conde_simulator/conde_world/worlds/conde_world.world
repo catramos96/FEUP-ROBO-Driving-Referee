@@ -505,7 +505,7 @@
             </sensor>
          </link>
       </model>
-      <model name="waypoints_sensor_11">
+      <model name="waypoints_sensor_10">
          <static>1</static>
          <link name="bumper_sensor">
             <pose>2.475 0 0 0 0 0</pose>
