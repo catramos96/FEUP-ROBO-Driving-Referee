@@ -478,7 +478,7 @@
                <geometry>
                   <mesh>
                      <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoint_9.stl</uri>
+                     <uri>model://meshes/parking_ground.stl</uri>
                   </mesh>
                </geometry>
             </collision>
@@ -486,42 +486,7 @@
                <geometry>
                   <mesh>
                      <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoint_9.stl</uri>
-                  </mesh>
-               </geometry>
-               <material>
-                  <script>
-                     <uri>model://materials/scripts</uri>
-                     <uri>model://materials/textures</uri>
-                     <name>Yellow/Image</name>
-                  </script>
-               </material>
-            </visual>
-            <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
-               <contact>
-                  <collision>bumper_sensor</collision>
-               </contact>
-            </sensor>
-         </link>
-      </model>
-      <model name="waypoints_sensor_10">
-         <static>1</static>
-         <link name="bumper_sensor">
-            <pose>2.475 0 0 0 0 0</pose>
-            <collision name="bumper_sensor">
-               <geometry>
-                  <mesh>
-                     <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoint_10.stl</uri>
-                  </mesh>
-               </geometry>
-            </collision>
-            <visual name="visual">
-               <geometry>
-                  <mesh>
-                     <scale>1 1 1</scale>
-                     <uri>model://meshes/track_waypoint_10.stl</uri>
+                     <uri>model://meshes/parking_ground.stl</uri>
                   </mesh>
                </geometry>
                <material>
