@@ -267,7 +267,7 @@ void BoundariesCallback(const std_msgs::String::ConstPtr &msg)
       r->setBoundaryCollision(true);
 
       // For parallel parking - Parking limit is the track bounds
-      if (r->isParking())
+      if (r->isParking() && race_state == PARALLEL_PARKING)
       {
         if (r->getLastPenalty() == TRACK_BOUNDS)
         {
