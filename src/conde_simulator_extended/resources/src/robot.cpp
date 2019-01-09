@@ -153,6 +153,9 @@ void Robot::calculateDrivingScore()
 { // Driving with signs
     int half_laps = LAPS * 2;
     driving_score = half_laps * DRIVING_SCORE_REFERENCE + (half_laps * TIME_REFERENCE - end_time) - driving_penalties;
+    
+    if(driving_score < 0)   // If score is negative, it resets a 0
+        driving_score = 0;
 };
 
 void Robot::calculateParkingScore()
