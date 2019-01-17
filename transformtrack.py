@@ -8,7 +8,7 @@ def getElements(tree):
     elems.append(root.find('./world[@name="default"]/model[1]/link[@name="link_ground"]/visual[@name="visual"]/geometry/mesh/scale'))
     elems.append(root.find('./world[@name="default"]/model[2]/link[@name="link_park"]/collision[@name="park"]/geometry/mesh/scale'))
     elems.append(root.find('./world[@name="default"]/model[2]/link[@name="link_park"]/visual[@name="visual_park"]/geometry/mesh/scale'))
-    for i in range(1,16):
+    for i in range(1,17):
         elems.append(root.find('./world[@name="default"]/model['+str(i+2)+']/link[@name="bumper_sensor"]/collision[@name="bumper_sensor"]/geometry/mesh/scale'))
         elems.append(root.find('./world[@name="default"]/model['+str(i+2)+']/link[@name="bumper_sensor"]/visual[@name="visual"]/geometry/mesh/scale'))
     return elems
@@ -31,14 +31,20 @@ def scaleElems(tree,x,y):
     elems = getElements(tree)
     trackCollision,trackVisual = elems[:2]
     sensors = elems[2:]
-    trackCollisionCoords = trackCollision.text.split(' ')
-    trackCollision.text = str(float(trackCollisionCoords[0])*x) + ' ' + str(float(trackCollisionCoords[1])*y)
+    #trackCollisionCoords = trackCollision.text.split(' ')
+    #trackCollision.text = str(float(trackCollisionCoords[0])*x) + ' ' + str(float(trackCollisionCoords[1])*y)
+    trackCollision.text = "9999 9999"
     trackVisual.text = str(x) + ' ' + str(y) + ' 1'
     it = iter(sensors)
-    counter = 1
-    for waypoint in it:
-        waypoint.text = str(x) + ' ' + str(y) + ' 1'
-        next(it).text = str(x) + ' ' + str(y) + ' 1'
+    for sensor in it:
+        try:    
+                sensor.text = str(x) + ' ' + str(y) + ' 1'
+        except:
+                None
+        try:
+                next(it).text = str(x) + ' ' + str(y) + ' 1'
+        except:
+                None
     
 
 

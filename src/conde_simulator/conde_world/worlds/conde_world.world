@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <sdf version="1.6">
    <world name="default">
       <light name="sun" type="directional">
@@ -17,7 +16,7 @@
       <gravity>0 0 -9.8</gravity>
       <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
       <atmosphere type="adiabatic" />
-      <physics name="default_physics" default="0" type="ode">
+      <physics default="0" name="default_physics" type="ode">
          <max_step_size>0.0016</max_step_size>
          <real_time_factor>1</real_time_factor>
          <real_time_update_rate>625</real_time_update_rate>
@@ -42,7 +41,7 @@
                <geometry>
                   <plane>
                      <normal>0 0 1</normal>
-                     <size>6.95 16.7</size>
+                     <size>9999 9999</size>
                   </plane>
                </geometry>
                <surface>
@@ -62,7 +61,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_visualization.stl</uri>
                   </mesh>
                </geometry>
@@ -83,7 +82,7 @@
             <collision name="park">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_ground.stl</uri>
                   </mesh>
                </geometry>
@@ -105,7 +104,7 @@
                <cast_shadows>0</cast_shadows>
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_visualization.stl</uri>
                   </mesh>
                </geometry>
@@ -127,7 +126,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_bounds.stl</uri>
                   </mesh>
                </geometry>
@@ -135,7 +134,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_bounds.stl</uri>
                   </mesh>
                </geometry>
@@ -148,7 +147,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactplugin" filename="libcontact_borders.so" />
+               <plugin filename="libcontact_borders.so" name="contactplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -162,7 +161,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_semaphore.stl</uri>
                   </mesh>
                </geometry>
@@ -170,7 +169,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_semaphore.stl</uri>
                   </mesh>
                </geometry>
@@ -183,7 +182,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactsemaphoreplugin" filename="libcontact_semaphore.so" />
+               <plugin filename="libcontact_semaphore.so" name="contactsemaphoreplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -197,7 +196,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_1.stl</uri>
                   </mesh>
                </geometry>
@@ -205,7 +204,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_1.stl</uri>
                   </mesh>
                </geometry>
@@ -218,7 +217,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -232,7 +231,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_2.stl</uri>
                   </mesh>
                </geometry>
@@ -240,7 +239,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_2.stl</uri>
                   </mesh>
                </geometry>
@@ -253,7 +252,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -267,7 +266,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_3.stl</uri>
                   </mesh>
                </geometry>
@@ -275,7 +274,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_3.stl</uri>
                   </mesh>
                </geometry>
@@ -288,7 +287,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -302,7 +301,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_4.stl</uri>
                   </mesh>
                </geometry>
@@ -310,7 +309,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_4.stl</uri>
                   </mesh>
                </geometry>
@@ -323,7 +322,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -337,7 +336,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_5.stl</uri>
                   </mesh>
                </geometry>
@@ -345,7 +344,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_5.stl</uri>
                   </mesh>
                </geometry>
@@ -358,7 +357,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -372,7 +371,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_6.stl</uri>
                   </mesh>
                </geometry>
@@ -380,7 +379,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_6.stl</uri>
                   </mesh>
                </geometry>
@@ -393,7 +392,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -407,7 +406,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_7.stl</uri>
                   </mesh>
                </geometry>
@@ -415,7 +414,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_7.stl</uri>
                   </mesh>
                </geometry>
@@ -428,7 +427,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -442,7 +441,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_8.stl</uri>
                   </mesh>
                </geometry>
@@ -450,7 +449,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_8.stl</uri>
                   </mesh>
                </geometry>
@@ -463,7 +462,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -477,7 +476,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_ground.stl</uri>
                   </mesh>
                </geometry>
@@ -485,7 +484,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_ground.stl</uri>
                   </mesh>
                </geometry>
@@ -498,7 +497,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -512,7 +511,7 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_11.stl</uri>
                   </mesh>
                </geometry>
@@ -520,7 +519,7 @@
             <visual name="visual">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_waypoint_11.stl</uri>
                   </mesh>
                </geometry>
@@ -533,7 +532,7 @@
                </material>
             </visual>
             <sensor name="collision" type="contact">
-               <plugin name="contactwaypointplugin" filename="libcontact_waypoints.so" />
+               <plugin filename="libcontact_waypoints.so" name="contactwaypointplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -547,13 +546,13 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_bound_1.stl</uri>
                   </mesh>
                </geometry>
             </collision>
             <sensor name="collision" type="contact">
-               <plugin name="contactparkingplugin" filename="libcontact_parking.so" />
+               <plugin filename="libcontact_parking.so" name="contactparkingplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -567,13 +566,13 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/parking_bound_2.stl</uri>
                   </mesh>
                </geometry>
             </collision>
             <sensor name="collision" type="contact">
-               <plugin name="contactparkingplugin" filename="libcontact_parking.so" />
+               <plugin filename="libcontact_parking.so" name="contactparkingplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -587,13 +586,13 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_inside.stl</uri>
                   </mesh>
                </geometry>
             </collision>
             <sensor name="collision" type="contact">
-               <plugin name="contactplugin" filename="libcontact_borders.so" />
+               <plugin filename="libcontact_borders.so" name="contactplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -607,13 +606,13 @@
             <collision name="bumper_sensor">
                <geometry>
                   <mesh>
-                     <scale>1 1 1</scale>
+                     <scale>2 5 1</scale>
                      <uri>model://meshes/track_outside.stl</uri>
                   </mesh>
                </geometry>
             </collision>
             <sensor name="collision" type="contact">
-               <plugin name="contactplugin" filename="libcontact_borders.so" />
+               <plugin filename="libcontact_borders.so" name="contactplugin" />
                <contact>
                   <collision>bumper_sensor</collision>
                </contact>
@@ -654,7 +653,7 @@
                   <specular>0.1 0.1 0.1 1</specular>
                   <emissive>0 0 0 0</emissive>
                </material>
-               <plugin name="display_video_controller1" filename="libgazebo_ros_video.so">
+               <plugin filename="libgazebo_ros_video.so" name="display_video_controller1">
                   <robotNamespace>monitor1</robotNamespace>
                   <topicName>image1</topicName>
                   <height>120</height>
@@ -700,7 +699,7 @@
                   <specular>0.1 0.1 0.1 1</specular>
                   <emissive>0 0 0 0</emissive>
                </material>
-               <plugin name="display_video_controller2" filename="libgazebo_ros_video.so">
+               <plugin filename="libgazebo_ros_video.so" name="display_video_controller2">
                   <robotNamespace>monitor2</robotNamespace>
                   <topicName>image2</topicName>
                   <height>120</height>
@@ -716,36 +715,7 @@
             <gravity>1</gravity>
          </link>
       </model>
-      <!--<state world_name='default'>
-      <sim_time>0 0</sim_time>
-      <real_time>0 0</real_time>
-      <wall_time>0 0</wall_time>
-      <model name='conde_world'>
-        <pose>0 0 0 0 -0 0</pose>
-        <link name='link_ground'>
-          <pose>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-
-      <model name='semaphore_monitor'>
-        <pose>1.8 -0 0 0 -0 0</pose>
-        <link name='lcd1'>
-          <pose>1.4 -0 1 1.57 4.33681e-19 3.14</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-        <link name='lcd2'>
-          <pose>2.2 0 1 1.57 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-    </state>-->
+      
       <gui fullscreen="0">
          <camera name="user_camera">
             <pose frame="">7.0849 -8.35309 6.00103 0 0.633798 2.42819</pose>
