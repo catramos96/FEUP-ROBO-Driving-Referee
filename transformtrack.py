@@ -49,5 +49,5 @@ def scaleElems(tree,x,y):
 
 
 tree = ET.parse('src/conde_simulator/conde_world/worlds/conde_world.world')
-scaleElems(tree,2,5)
+scaleElems(tree,1.2,1.5)
 tree.write("transformed.world")
